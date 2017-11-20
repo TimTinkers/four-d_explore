@@ -20,6 +20,7 @@ add_subdirectory   (dep/anvil "${CMAKE_CURRENT_BINARY_DIR}/anvil")
 
 
 include_directories(${Anvil_SOURCE_DIR}/include
+                    ${glm_SOURCE_DIR}/glm
                     ${4d_explore_SOURCE_DIR}/include)
 
 # Include the Vulkan header.
@@ -49,8 +50,9 @@ endif()
 
 # Create the 4d_explore project.
 add_executable (4d_explore src/app.h
-                           src/app.h
                            src/app.cpp
+                           src/matrix.h
+                           src/matrix.cpp
                            src/main.cpp)
 
 # Add linking dependencies for the example projects

@@ -5,6 +5,8 @@
 #include "misc/window_factory.h"
 #include "wrappers/device.h"
 
+#include "matrix.h"
+
 #define APP_NAME "Four dimensional exploration"
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
