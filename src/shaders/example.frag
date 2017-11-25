@@ -27,4 +27,4 @@ void main() {
     luminance = pcLuminance.value3;
   
   result.w = luminance[instance_id % 4];
-};
+}

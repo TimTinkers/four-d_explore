@@ -279,127 +279,22 @@ void App::init_semaphores() {
   }
 }
 
-/*
-  SHADER INITIALIZATION.
-  This helps round off the example by showing that programmable shaders with
-  Anvil
-  are now completed. I don't have a ton of experience with Vulkan yet, shader
-  might
-  be messy.
- */
-
-// Import the fragment shader to use.
-static const char* g_glsl_frag =
-    "#version 430\n"
-    "\n"
-    "layout (location = 0)      in  vec3 color;\n"
-    "layout (location = 1) flat in  int  instance_id;\n"
-    "layout (location = 0)      out vec4 result;\n"
-    "\n"
-    "layout (push_constant) uniform PCLuminance\n"
-    "{\n"
-    "    vec4 value0;\n"
-    "    vec4 value1;\n"
-    "    vec4 value2;\n"
-    "    vec4 value3;\n"
-    "} pcLuminance;\n"
-    "\n"
-    "void main()\n"
-    "{\n"
-    "    int  index = instance_id / 4;\n"
-    "    vec4 luminance;\n"
-    "\n"
-    "    result = vec4(color.xyz, 1.0);\n"
-    "\n"
-    "    if (index == 0)\n"
-    "        luminance = pcLuminance.value0;\n"
-    "    else if (index == 1)\n"
-    "        luminance = pcLuminance.value1;\n"
-    "    else if (index == 2)\n"
-    "        luminance = pcLuminance.value2;\n"
-    "    else if (index == 3)\n"
-    "        luminance = pcLuminance.value3;\n"
-    "\n"
-    "    result.w = luminance[instance_id % 4];\n"
-    "}\n";
-
-// An in-file, maybe improper vertex shader.
-static const char* g_glsl_vert =
-    "#version 430\n"
-    "\n"
-    "layout (location = 0) in vec4 vertexData;\n"
-    "layout (location = 1) in vec3 colorData;\n"
-    "\n"
-    "layout (location = 0)      out vec3 result_color;\n"
-    "layout (location = 1) flat out int  result_instance_id;\n"
-    "\n"
-    "layout (std140, binding = 0) uniform dataUB\n"
-    "{\n"
-    "    ivec4 frame_index;\n"
-    "    vec4  position_rotation[N_TRIANGLES]; /* XY position, XY rotation */\n"
-    "    vec4  size             [N_TRIANGLES / 4];\n"
-    "};\n"
-    "\n"
-    "layout (push_constant) uniform PCLuminance\n"
-    "{\n"
-    "    vec4 value0;\n"
-    "    vec4 value1;\n"
-    "    vec4 value2;\n"
-    "    vec4 value3;\n"
-    "} pcLuminance;\n"
-    "\n"
-    "void main()\n"
-    "{\n"
-    "    int  index = gl_InstanceIndex / 4;\n"
-    "    vec4 luminance;\n"
-    "\n"
-    "    if (index == 0)\n"
-    "        luminance = pcLuminance.value0;\n"
-    "    else if (index == 1)\n"
-    "        luminance = pcLuminance.value1;\n"
-    "    else if (index == 2)\n"
-    "        luminance = pcLuminance.value2;\n"
-    "    else if (index == 3)\n"
-    "        luminance = pcLuminance.value3;\n"
-    "\n"
-    "    result_color        = colorData + vec3(0.0, 0.0, 1.0 - "
-    "luminance[gl_InstanceIndex % 4]);\n"
-    "    result_instance_id  = gl_InstanceIndex;\n"
-    "\n"
-    "\n"
-    "    vec4 result_position = vec4(vertexData.xy, 0.0, 1.0);\n"
-    "    vec2 cos_factor      = cos(position_rotation[gl_InstanceIndex].zw);\n"
-    "    vec2 sin_factor      = sin(position_rotation[gl_InstanceIndex].zw);\n"
-    "\n"
-    "    result_position.xy   = vec2(dot(vertexData.xy, vec2(cos_factor.x, "
-    "-sin_factor.y) ),\n"
-    "                                dot(vertexData.xy, vec2(sin_factor.x,  "
-    "cos_factor.y) ));\n"
-    "\n"
-    "    switch (gl_InstanceIndex % 4)\n"
-    "    {\n"
-    "        case 0: result_position.xy *= vec2(size[index].x); break;\n"
-    "        case 1: result_position.xy *= vec2(size[index].y); break;\n"
-    "        case 2: result_position.xy *= vec2(size[index].z); break;\n"
-    "        case 3: result_position.xy *= vec2(size[index].w); break;\n"
-    "    }\n"
-    "\n"
-    "    result_position.xy += position_rotation[gl_InstanceIndex].xy;\n"
-    "    gl_Position         = result_position;\n"
-    "}\n";
-
 // Display the interesting output of the shaders!
 void App::init_shaders() {
-  /* WIP dynamic reading of shaders.
-  // Import the fragment shader to use.
-  std::ifstream t("shaders/example.frag");
   std::stringstream buffer;
-  buffer << t.rdbuf();
-  std::string out = buffer.str();
-  g_glsl_frag = out.c_str();
+  std::ifstream t;
 
-  std::cout << g_glsl_frag;
-  */
+  t.open("../src/shaders/example.frag");
+  buffer << t.rdbuf();
+  t.close();
+  std::string frag = buffer.str();
+
+  buffer.str(std::string());
+
+  t.open("../src/shaders.vert2");
+  buffer << t.rdbuf();
+  t.close();
+  std::string vert = buffer.str();
 
   std::shared_ptr<Anvil::GLSLShaderToSPIRVGenerator> fragment_shader_ptr;
   std::shared_ptr<Anvil::ShaderModule> fragment_shader_module_ptr;
@@ -408,10 +303,10 @@ void App::init_shaders() {
 
   fragment_shader_ptr = Anvil::GLSLShaderToSPIRVGenerator::create(
       device_ptr_, Anvil::GLSLShaderToSPIRVGenerator::MODE_USE_SPECIFIED_SOURCE,
-      g_glsl_frag, Anvil::SHADER_STAGE_FRAGMENT);
+      frag.c_str(), Anvil::SHADER_STAGE_FRAGMENT);
   vertex_shader_ptr = Anvil::GLSLShaderToSPIRVGenerator::create(
       device_ptr_, Anvil::GLSLShaderToSPIRVGenerator::MODE_USE_SPECIFIED_SOURCE,
-      g_glsl_vert, Anvil::SHADER_STAGE_VERTEX);
+      vert.c_str(), Anvil::SHADER_STAGE_VERTEX);
 
   fragment_shader_ptr->add_definition_value_pair("N_TRIANGLES", N_TRIANGLES);
   vertex_shader_ptr->add_definition_value_pair("N_TRIANGLES", N_TRIANGLES);
