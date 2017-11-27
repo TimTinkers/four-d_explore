@@ -8,15 +8,23 @@ struct mat5 {
   float ww;
 };
 
+struct primitive {
+  vec4 positions[4];
+};
+
 // Should be points
 layout(set = 1, binding = 0) buffer InputVertices {
-  vec4 pos;
+  vec4 pos[];
 } inputVertices;
 
 // Should be primitives
-layout(set = 1, binding = 1) buffer OutputVertices {
-  vec4 pos;
-} outputVertices;
+layout(set = 1, binding = 1) buffer OutputPrimitives {
+  primitive prims[];
+} outputPrims;
 
 void main() {
+  uint index = gl_GlobalInvocationID.x;
+
+  uint pid = index / 4;
+  outputPrims.prims[pid].positions[index % 4] = inputVertices.pos[index];
 }
