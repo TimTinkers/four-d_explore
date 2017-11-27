@@ -8,9 +8,16 @@ struct mat5 {
   float ww;
 };
 
+struct vec5 {
+  vec4 main;
+  float w;
+};
+
+
 layout(set = 0, binding = 0) uniform CameraBufferObject {
   mat5 view;
   mat5 proj;
+  mat5 view_proj;
 } camera;
 
 layout(set = 1, binding = 0) uniform Dimensions {
@@ -19,12 +26,24 @@ layout(set = 1, binding = 0) uniform Dimensions {
 } dim;
 
 layout(set = 2, binding = 0) buffer InputVertices {
-  vec4 pos;
+  vec4 pos[];
 } inputVertices;
 
 layout(set = 2, binding = 1) buffer OutputVertices {
-  vec4 pos;
+  vec4 pos[];
 } outputVertices;
 
+vec5 mult(mat5 mat, vec4 point) {
+  vec5 res;
+  res.main = mat.main*point + mat.column;
+  res.w = dot(point, mat.row) + mat.ww;
+  return res;
+}
+
 void main() {
+  uint index = gl_GlobalInvocationID.x;
+  vec4 p = inputVertices.pos[index];
+  vec5 trans_p = mult(camera.view_proj, p);
+  vec4 clip_p = trans_p.main/trans_p.w;
+  outputVertices.pos[index] = clip_p;
 }
