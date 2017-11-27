@@ -17,10 +17,13 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 endif()
 
 add_subdirectory   (dep/anvil "${CMAKE_CURRENT_BINARY_DIR}/anvil")
+add_subdirectory   (dep/glm   "${CMAKE_CURRENT_BINARY_DIR}/glm")
+add_subdirectory   (dep/GLFW  "${CMAKE_CURRENT_BINARY_DIR}/GLFW")
 
 
 include_directories(${Anvil_SOURCE_DIR}/include
                     ${glm_SOURCE_DIR}/glm
+                    ${GLFW_SOURCE_DIR}/include
                     ${4d_explore_SOURCE_DIR}/include)
 
 # Include the Vulkan header.
@@ -59,6 +62,7 @@ add_executable (4d_explore src/app.h
 
 # Add linking dependencies for the example projects
 add_dependencies     (4d_explore Anvil)
+add_dependencies     (4d_explore glm)
 
 if (WIN32)
     target_link_libraries(4d_explore Anvil)
