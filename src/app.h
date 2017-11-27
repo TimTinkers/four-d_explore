@@ -9,6 +9,8 @@
 #include "wrappers/rendering_surface.h"
 #include "wrappers/swapchain.h"
 
+#include "camera.h"
+
 // Global variables.
 #define N_SWAPCHAIN_IMAGES 3
 
@@ -33,6 +35,7 @@ class App {
   uint32_t n_last_semaphore_used_;
   const uint32_t n_swapchain_images_;
   VkDeviceSize ub_data_size_per_swapchain_image_;
+  Camera camera_;
 
   // Boilerplate initialization.
   void init_vulkan();
@@ -84,6 +87,10 @@ class App {
   // Frame rendering.
   void update_data_ub_contents(uint32_t in_n_swapchain_image);
   static void draw_frame(void* app_raw_ptr);
+
+  // Keyboard.
+  void init_camera();
+  static void on_keypress_event(void* callback_data_raw_ptr, void* app_raw_ptr);
 };
 
 #endif  // APP_H_

@@ -45,6 +45,8 @@ class mat5 {
   // Gererate a translation matrix along a given axis.
   static mat5 translate(int axis, float amount);
 
+  void Print() const;
+
  private:
   glm::mat4 main_mat;
   glm::vec4 column;

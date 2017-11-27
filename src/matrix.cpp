@@ -2,6 +2,8 @@
 
 #include "glm/gtc/matrix_access.hpp"
 
+#include <iostream>
+
 // This algorithm taken from Steven Hollasch's Master's Thesis on four-space
 // visualization.
 // It extends the cross product to four dimensions using determinants to
@@ -31,10 +33,10 @@ vec5::vec5() {
 }
 
 mat5::mat5() {
-  main_mat = glm::mat4(0);
+  main_mat = glm::mat4(1);
   column = glm::vec4(0);
   row = glm::vec4(0);
-  ww = 0;
+  ww = 1;
 }
 
 vec5 mat5::operator*(const vec5& other) {
@@ -46,6 +48,7 @@ vec5 mat5::operator*(const vec5& other) {
 
 mat5 mat5::operator*(const mat5& other) {
   mat5 result;
+  //other.Print();
   result.main_mat = main_mat * other.main_mat;
   for (int i = 0; i < 4; ++i) {
     for (int j = 0; j < 4; ++j) {
@@ -136,4 +139,21 @@ mat5 mat5::translate(int axis, float amount) {
   
   res.column[axis] = amount;
   return res;
+}
+
+void mat5::Print() const {
+  std::cout << "[" << main_mat[0][0] << ", " << main_mat[0][1] << ", "
+            << main_mat[0][2] << ", " << main_mat[0][3] << ", " << column[0]
+            << "\n";
+  std::cout << " " << main_mat[1][0] << ", " << main_mat[1][1] << ", "
+            << main_mat[1][2] << ", " << main_mat[1][3] << ", " << column[1]
+            << "\n";
+  std::cout << " " << main_mat[2][0] << ", " << main_mat[2][1] << ", "
+            << main_mat[2][2] << ", " << main_mat[2][3] << ", " << column[2]
+            << "\n";
+  std::cout << " " << main_mat[3][0] << ", " << main_mat[3][1] << ", "
+            << main_mat[3][2] << ", " << main_mat[3][3] << ", " << column[3]
+            << "\n";
+  std::cout << " " << row[0] << ", " << row[1] << ", " << row[2] << ", "
+            << row[3] << ", " << ww << "]\n";
 }

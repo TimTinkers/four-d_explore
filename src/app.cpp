@@ -85,6 +85,7 @@ void App::init() {
   init_shaders();
   init_gfx_pipelines();
   init_command_buffers();
+  init_camera();
 }
 
 /*
@@ -291,7 +292,7 @@ void App::init_shaders() {
 
   buffer.str(std::string());
 
-  t.open("../src/shaders.vert2");
+  t.open("../src/shaders/example.vert");
   buffer << t.rdbuf();
   t.close();
   std::string vert = buffer.str();
@@ -574,6 +575,71 @@ void App::init_command_buffers() {
 
     command_buffers_[n_command_buffer] = cmd_buffer_ptr;
   }
+}
+
+void App::init_camera() {
+  camera_  = Camera();
+  camera_.UpdateView();
+  camera_.UpdateProj();
+  camera_.GetViewProj().Print();
+  window_ptr_->register_for_callbacks(
+      Anvil::WINDOW_CALLBACK_ID_KEYPRESS_RELEASED, on_keypress_event, this);
+}
+
+void App::on_keypress_event(void* callback_data_raw_ptr, void* app_raw_ptr) {
+  App* app_ptr = static_cast<App*>(app_raw_ptr);
+  Anvil::KeypressReleasedCallbackData* callback_data_ptr =
+      static_cast<Anvil::KeypressReleasedCallbackData*>(callback_data_raw_ptr);
+  std::shared_ptr<Anvil::BaseDevice> device_locked_ptr =
+      app_ptr->device_ptr_.lock();
+
+  std::cout << (char)callback_data_ptr->released_key_id << "\n";
+
+  switch (callback_data_ptr->released_key_id) {
+    case 'w': case 'W':
+      app_ptr->camera_.MoveForward(0.1);
+      break;
+    case 's': case 'S':
+      app_ptr->camera_.MoveBackward(0.1);
+      break;
+    case 'a': case 'A':
+      app_ptr->camera_.MoveLeft(0.1);
+      break;
+    case 'd': case 'D':
+      app_ptr->camera_.MoveRight(0.1);
+      break;
+    case 'q': case 'Q':
+      app_ptr->camera_.MoveAna(0.1);
+      break;
+    case 'e': case 'E':
+      app_ptr->camera_.MoveKata(0.1);
+      break;
+    case 'r': case 'R':
+      app_ptr->camera_.MoveUp(0.1);
+      break;
+    case 'f': case 'F':
+      app_ptr->camera_.MoveDown(0.1);
+      break;
+    case 'i': case 'I':
+      app_ptr->camera_.RotateUp(0.1);
+      break;
+    case 'k': case 'K':
+      app_ptr->camera_.RotateDown(0.1);
+      break;
+    case 'j': case 'J':
+      app_ptr->camera_.RotateLeft(0.1);
+      break;
+    case 'l': case 'L':
+      app_ptr->camera_.RotateRight(0.1);
+      break;
+    case 'u': case 'U':
+      app_ptr->camera_.RotateAna(0.1);
+      break;
+    case 'o': case 'O':
+      app_ptr->camera_.RotateKata(0.1);
+      break;
+  }
+  app_ptr->camera_.GetViewProj().Print();
 }
 
 /*

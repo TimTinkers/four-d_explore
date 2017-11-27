@@ -5,13 +5,13 @@
 Camera::Camera()
     : eye_(0, 0, 0, -1),
       look_(0, 0, 0, 0),
-      up_(1, 0, 0, 0),
-      right_(0, 1, 0, 0),
+      up_(0, 1, 0, 0),
+      right_(1, 0, 0, 0),
       fovy_(30),
       aspectX_(0.75),
       aspectW_(0.75),
       zNear_(1),
-      zFar_(50) {}
+      zFar_(20) {}
 
 void Camera::SetEye(glm::vec4 eye) { eye_ = eye; }
 
@@ -71,8 +71,13 @@ void Camera::RotateKata(float amount) {
 }
 
 void Camera::MoveForward(float amount) {
+  //std::cout << "FORWARD\n";
+  //view_matrix_.Print();
   mat5 trans = mat5::translate(1, amount);
+  //trans.Print();
   view_matrix_ = trans * view_matrix_;
+  //view_matrix_.Print();
+  //std::cout << "END FORWARD\n\n\n";
 }
 
 void Camera::MoveBackward(float amount) {
