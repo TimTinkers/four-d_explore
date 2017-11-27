@@ -39,6 +39,12 @@ class mat5 {
   static mat5 lookAt(glm::vec4 eye, glm::vec4 center, glm::vec4 up,
                      glm::vec4 right);
 
+  // Generate a rotation matrix between axisA and axisB.
+  static mat5 rotate(int axisA, int axisB, float angle);
+
+  // Gererate a translation matrix along a given axis.
+  static mat5 translate(int axis, float amount);
+
  private:
   glm::mat4 main_mat;
   glm::vec4 column;

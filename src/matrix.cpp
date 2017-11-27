@@ -108,3 +108,32 @@ mat5 mat5::lookAt(glm::vec4 eye, glm::vec4 center, glm::vec4 up,
 
   return result;
 }
+
+mat5 mat5::rotate(int axisA, int axisB, float angle) {
+  mat5 res;
+  res.main_mat[0][0] = 1.0f;
+  res.main_mat[1][1] = 1.0f;
+  res.main_mat[2][2] = 1.0f;
+  res.main_mat[3][3] = 1.0f;
+  res.ww = 1.0f;
+
+  float cosA = cos(angle);
+  float sinA = sin(angle);
+  res.main_mat[axisA][axisA] = cosA;
+  res.main_mat[axisA][axisB] = sinA;
+  res.main_mat[axisB][axisA] = -sinA;
+  res.main_mat[axisB][axisB] = cosA;
+  return res;
+}
+
+mat5 mat5::translate(int axis, float amount) {
+  mat5 res;
+  res.main_mat[0][0] = 1.0f;
+  res.main_mat[1][1] = 1.0f;
+  res.main_mat[2][2] = 1.0f;
+  res.main_mat[3][3] = 1.0f;
+  res.ww = 1.0f;
+  
+  res.column[axis] = amount;
+  return res;
+}

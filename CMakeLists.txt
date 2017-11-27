@@ -53,6 +53,8 @@ add_executable (4d_explore src/app.h
                            src/app.cpp
                            src/matrix.h
                            src/matrix.cpp
+                           src/camera.h
+                           src/camera.cpp
                            src/main.cpp)
 
 # Add linking dependencies for the example projects
