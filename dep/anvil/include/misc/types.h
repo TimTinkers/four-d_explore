@@ -53,7 +53,9 @@
     #endif
 #else
     #if defined(ANVIL_INCLUDE_XCB_WINDOW_SYSTEM_SUPPORT)
+        #ifndef VK_USE_PLATFORM_XCB_KHR
         #define VK_USE_PLATFORM_XCB_KHR
+        #endif
     #endif
 #endif
 

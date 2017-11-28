@@ -1,71 +1,66 @@
-cmake_minimum_required(VERSION 2.8)
-project (4d_explore)
+cmake_minimum_required(VERSION 2.8.12)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    include(CheckCXXCompilerFlag)
-    
-    CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-    CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
-    
-    if(COMPILER_SUPPORTS_CXX11)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-    elseif(COMPILER_SUPPORTS_CXX0X)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-    else()
-        message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
-    endif()
-endif()
+project(4d_explore)
 
-add_subdirectory   (dep/anvil "${CMAKE_CURRENT_BINARY_DIR}/anvil")
-add_subdirectory   (dep/glm   "${CMAKE_CURRENT_BINARY_DIR}/glm")
-add_subdirectory   (dep/GLFW  "${CMAKE_CURRENT_BINARY_DIR}/GLFW")
+OPTION(USE_D2D_WSI "Build the project using Direct to Display swapchain" OFF)
 
+find_package(Vulkan REQUIRED)
 
-include_directories(${Anvil_SOURCE_DIR}/include
-                    ${glm_SOURCE_DIR}/glm
-                    ${GLFW_SOURCE_DIR}/include
-                    ${4d_explore_SOURCE_DIR}/include)
+IF(WIN32)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DVK_USE_PLATFORM_WIN32_KHR")
+ELSE(WIN32)
+    find_package(Threads REQUIRED)
+IF(USE_D2D_WSI)
+    MESSAGE("Using direct to display extension...")
+    add_definitions(-D_DIRECT2DISPLAY)
+ELSE(USE_D2D_WSI)
+    find_package(XCB REQUIRED)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DVK_USE_PLATFORM_XCB_KHR")
+ENDIF(USE_D2D_WSI)
+    # Todo : android?
+ENDIF(WIN32)
 
-# Include the Vulkan header.
-if (WIN32)
-    include_directories($ENV{VK_SDK_PATH}/Include
-                        $ENV{VULKAN_SDK}/Include)
-    
-    if("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
-            link_directories   ($ENV{VK_SDK_PATH}/Bin
-                                $ENV{VK_SDK_PATH}/Lib
-                                $ENV{VULKAN_SDK}/Bin
-                                $ENV{VULKAN_SDK}/Lib)
-    else()
-            link_directories   ($ENV{VK_SDK_PATH}/Bin32
-                                $ENV{VK_SDK_PATH}/Lib32
-                                $ENV{VULKAN_SDK}/Bin32
-                                $ENV{VULKAN_SDK}/Lib32)
-    endif()
-else()
-    include_directories($ENV{VK_SDK_PATH}/x86_64/include
-                        $ENV{VULKAN_SDK}/include
-                        $ENV{VULKAN_SDK}/x86_64/include)
-    link_directories   ($ENV{VK_SDK_PATH}/x86_64/lib
-                        $ENV{VULKAN_SDK}/lib
-                        $ENV{VULKAN_SDK}/x86_64/lib)
-endif()
+# Set preprocessor defines
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DNOMINMAX -D_USE_MATH_DEFINES")
 
-# Create the 4d_explore project.
-add_executable (4d_explore src/app.h
-                           src/app.cpp
-                           src/matrix.h
-                           src/matrix.cpp
-                           src/camera.h
-                           src/camera.cpp
-                           src/main.cpp)
+add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+add_definitions(-std=c++11)
 
-# Add linking dependencies for the example projects
-add_dependencies     (4d_explore Anvil)
-add_dependencies     (4d_explore glm)
+# Enable the creation of folders for Visual Studio projects
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-if (WIN32)
-    target_link_libraries(4d_explore Anvil)
-else()
-    target_link_libraries(4d_explore Anvil dl)
-endif()
+function(ExternalTarget folder target)
+  set_property(TARGET ${target} PROPERTY FOLDER ${folder})
+endfunction(ExternalTarget)
+
+function(InternalTarget folder target)
+  ExternalTarget("${folder}" ${target})
+  if (MSVC)
+    get_target_property(targetSources ${target} SOURCES)
+    foreach(sourceFile IN ITEMS ${targetSources})
+        if (IS_ABSOLUTE "${sourceFile}")
+          file(RELATIVE_PATH sourceFile "${CMAKE_CURRENT_SOURCE_DIR}" "${sourceFile}")
+        endif()
+        get_filename_component(sourceDir "${sourceFile}" PATH)
+        string(REPLACE "/" "\\" sourceDir "${sourceDir}")
+        source_group("${sourceDir}" FILES "${sourceFile}")
+    endforeach()
+  endif()
+endfunction(InternalTarget)
+
+# Compiler specific stuff
+IF(MSVC)
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
+ENDIF(MSVC)
+
+IF(WIN32)
+  # Nothing here (yet)
+ELSE(WIN32)
+    link_libraries(${XCB_LIBRARIES} ${VULKAN_LIB})
+ENDIF(WIN32)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/")
+
+add_subdirectory(dep)
+add_subdirectory(src)
