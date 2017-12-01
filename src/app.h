@@ -10,6 +10,7 @@
 #include "wrappers/swapchain.h"
 
 #include "camera.h"
+#include "Window.h"
 
 // Global variables.
 #define N_SWAPCHAIN_IMAGES 3
@@ -91,6 +92,8 @@ class App {
   // Keyboard.
   void init_camera();
   static void on_keypress_event(void* callback_data_raw_ptr, void* app_raw_ptr);
+
+  VkSurfaceKHR surface_;
 };
 
 #endif  // APP_H_

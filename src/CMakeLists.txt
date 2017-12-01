@@ -58,7 +58,12 @@ foreach(SHADER_SOURCE ${SHADER_SOURCES})
     # TODO: Build shaders on not windows
 endforeach()
 
-target_link_libraries(4d_explore ${ASSIMP_LIBRARIES} Vulkan::Vulkan glfw Anvil)
+if(WIN32)
+    target_link_libraries(4d_explore ${ASSIMP_LIBRARIES} Vulkan::Vulkan glfw Anvil)
+else(WIN32)
+    target_link_libraries(4d_explore ${ASSIMP_LIBRARIES} Vulkan::Vulkan glfw Anvil X11-xcb)
+endif(WIN32)
+
 target_include_directories(4d_explore PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${GLM_INCLUDE_DIR}

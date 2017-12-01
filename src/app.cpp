@@ -1,6 +1,8 @@
 // Imports.
 #include "app.h"
 
+#include <X11/Xlib-xcb.h>
+
 #include <cmath>
 #include <fstream>
 #include <iostream>
@@ -29,8 +31,16 @@
 #include "wrappers/render_pass.h"
 #include "wrappers/semaphore.h"
 #include "wrappers/shader_module.h"
+#include "vulkan/vulkan.h"
 
 #include "matrix.h"
+
+#ifdef _WIN32
+#define GLFW_EXPOSE_NATIVE_WIN32
+#else
+#define GLFW_EXPOSE_NATIVE_X11
+#endif
+#include "GLFW/glfw3native.h"
 
 // Debug flags.
 // #define ENABLE_VALIDATION
@@ -39,6 +49,8 @@
 #define APP_NAME "Four Dimensional Exploration"
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
+
+#define GLFW
 
 // Field variables.
 // Mesh data.
@@ -111,13 +123,19 @@ void App::init_vulkan() {
   Initialize the window for displaying this app.
  */
 void App::init_window() {
+  InitializeWindow(WINDOW_WIDTH, WINDOW_HEIGHT, APP_NAME);
+
 #ifdef _WIN32
   const Anvil::WindowPlatform platform = Anvil::WINDOW_PLATFORM_SYSTEM;
+  WindowHandle handle = glfwGetWin32Window(GetGLFWWindow());
+  void* xcb_ptr = nullptr;
 #else
   const Anvil::WindowPlatform platform = Anvil::WINDOW_PLATFORM_XCB;
+  WindowHandle handle = glfwGetX11Window(GetGLFWWindow());
+  void* xcb_ptr = (void*)XGetXCBConnection(glfwGetX11Display());
 #endif
-  window_ptr_ = Anvil::WindowFactory::create_window(
-      platform, APP_NAME, WINDOW_WIDTH, WINDOW_HEIGHT, draw_frame, this);
+
+  window_ptr_ = Anvil::WindowFactory::create_window(platform, handle, xcb_ptr);
 }
 
 /*
@@ -128,6 +146,7 @@ void App::init_swapchain() {
   std::shared_ptr<Anvil::SGPUDevice> device_locked_ptr(device_ptr_);
   rendering_surface_ptr_ =
       Anvil::RenderingSurface::create(instance_ptr_, device_ptr_, window_ptr_);
+  //rendering_surface_ptr_->get_surface_ptr() = &surface_;
 
   rendering_surface_ptr_->set_name("Main rendering surface");
 
@@ -582,8 +601,8 @@ void App::init_camera() {
   camera_.UpdateView();
   camera_.UpdateProj();
   camera_.GetViewProj().Print();
-  window_ptr_->register_for_callbacks(
-      Anvil::WINDOW_CALLBACK_ID_KEYPRESS_RELEASED, on_keypress_event, this);
+  //window_ptr_->register_for_callbacks(
+  //    Anvil::WINDOW_CALLBACK_ID_KEYPRESS_RELEASED, on_keypress_event, this);
 }
 
 void App::on_keypress_event(void* callback_data_raw_ptr, void* app_raw_ptr) {
@@ -740,7 +759,12 @@ void App::draw_frame(void* app_raw_ptr) {
   ++n_frames_rendered;
 }
 
-void App::run() { window_ptr_->run(); }
+void App::run() { //window_ptr_->run(); 
+  while(!ShouldQuit()) {
+    glfwPollEvents();
+    draw_frame(this);
+  }
+}
 
 VkBool32 App::on_validation_callback(VkDebugReportFlagsEXT message_flags,
                                      VkDebugReportObjectTypeEXT object_type,
