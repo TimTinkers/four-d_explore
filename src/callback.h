@@ -2,6 +2,7 @@
 #define CALLBACK_H_
 
 #include "app.h"
+#include "camera.h"
 
 #include <unordered_set>
 
@@ -11,9 +12,12 @@ class Callback {
  public:
   static Callback* GetInstance();
 
-  void init(App* app);
+  void init(App* app, Camera* camera);
 
   const std::unordered_set<int>* get_keys() { return &keys_; }
+
+  // This function returns the accumulated scroll position and resets to zero.
+  double get_scroll_pos();
 
   static void on_keypress_event(GLFWwindow* window, int key, int scanCode,
                                 int action, int mods) {
@@ -46,7 +50,12 @@ class Callback {
                                   double yOffset);
 
   App* app_;
+  Camera* camera_;
   std::unordered_set<int> keys_;
+  double scroll_pos_;
+  //bool mouse_down_;
+  double last_x_pos_;
+  double last_y_pos_;
 };
 
 #endif  // CALLBACK_H_

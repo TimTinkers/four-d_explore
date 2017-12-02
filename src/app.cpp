@@ -615,11 +615,13 @@ void App::init_camera() {
   //    std::bind(&App::on_keypress_event, this, std::placeholders::_1,
   //              std::placeholders::_2, std::placeholders::_3,
   //              std::placeholders::_4, std::placeholders::_5));
-  Callback::GetInstance()->init(this);
+  Callback::GetInstance()->init(this, &camera_);
   glfwSetKeyCallback(GetGLFWWindow(), Callback::on_keypress_event);
   glfwSetMouseButtonCallback(GetGLFWWindow(), Callback::on_mouse_button_event);
   glfwSetCursorPosCallback(GetGLFWWindow(), Callback::on_mouse_move_event);
   glfwSetScrollCallback(GetGLFWWindow(), Callback::on_mouse_scroll_event);
+
+  glfwSetInputMode(GetGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
 void App::handle_keys() {
@@ -652,28 +654,10 @@ void App::handle_keys() {
       case 'f': case 'F':
         camera_.MoveDown(0.1);
         break;
-      case 'i': case 'I':
-        camera_.RotateUp(0.1);
-        break;
-      case 'k': case 'K':
-        camera_.RotateDown(0.1);
-        break;
-      case 'j': case 'J':
-        camera_.RotateLeft(0.1);
-        break;
-      case 'l': case 'L':
-        camera_.RotateRight(0.1);
-        break;
-      case 'u': case 'U':
-        camera_.RotateAna(0.1);
-        break;
-      case 'o': case 'O':
-        camera_.RotateKata(0.1);
-        break;
     }
   }
   //std::cout << "\n";
-  //camera_.GetViewProj().Print();
+  camera_.GetViewProj().Print();
 }
 
 /*
@@ -784,6 +768,7 @@ void App::run() { //window_ptr_->run();
     //prev_time = cur_time;
     handle_keys();
   }
+  DestroyWindow();
 }
 
 VkBool32 App::on_validation_callback(VkDebugReportFlagsEXT message_flags,

@@ -90,7 +90,7 @@ class App {
   void update_data_ub_contents(uint32_t in_n_swapchain_image);
   static void draw_frame(void* app_raw_ptr);
 
-  // Keyboard.
+  // Input.
   void init_camera();
   void handle_keys();
 
