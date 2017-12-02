@@ -5,6 +5,7 @@
 
 #include <cmath>
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <string>
 
@@ -34,6 +35,7 @@
 #include "vulkan/vulkan.h"
 
 #include "matrix.h"
+#include "callback.h"
 
 #ifdef _WIN32
 #define GLFW_EXPOSE_NATIVE_WIN32
@@ -77,7 +79,8 @@ Create the app and assign default values to several field variables.
 App::App()
     : n_last_semaphore_used_(0),
       n_swapchain_images_(N_SWAPCHAIN_IMAGES),
-      ub_data_size_per_swapchain_image_(0) {}
+      ub_data_size_per_swapchain_image_(0),
+      prev_time(std::chrono::steady_clock::now()) {}
 
 /*
  This function initializes the app through a series of smaller initialization
@@ -603,62 +606,74 @@ void App::init_camera() {
   camera_.GetViewProj().Print();
   //window_ptr_->register_for_callbacks(
   //    Anvil::WINDOW_CALLBACK_ID_KEYPRESS_RELEASED, on_keypress_event, this);
+  //auto fun = std::bind(&App::on_keypress_event, this, std::placeholders::_1,
+  //                     std::placeholders::_2, std::placeholders::_3,
+  //                     std::placeholders::_4, std::placeholders::_5);
+  //glfwSetKeyCallback(GetGLFWWindow(), &fun);
+  //glfwSetKeyCallback(
+  //    GetGLFWWindow(),
+  //    std::bind(&App::on_keypress_event, this, std::placeholders::_1,
+  //              std::placeholders::_2, std::placeholders::_3,
+  //              std::placeholders::_4, std::placeholders::_5));
+  Callback::GetInstance()->init(this);
+  glfwSetKeyCallback(GetGLFWWindow(), Callback::on_keypress_event);
+  glfwSetMouseButtonCallback(GetGLFWWindow(), Callback::on_mouse_button_event);
+  glfwSetCursorPosCallback(GetGLFWWindow(), Callback::on_mouse_move_event);
+  glfwSetScrollCallback(GetGLFWWindow(), Callback::on_mouse_scroll_event);
 }
 
-void App::on_keypress_event(void* callback_data_raw_ptr, void* app_raw_ptr) {
-  App* app_ptr = static_cast<App*>(app_raw_ptr);
-  Anvil::KeypressReleasedCallbackData* callback_data_ptr =
-      static_cast<Anvil::KeypressReleasedCallbackData*>(callback_data_raw_ptr);
-  std::shared_ptr<Anvil::BaseDevice> device_locked_ptr =
-      app_ptr->device_ptr_.lock();
-
-  std::cout << (char)callback_data_ptr->released_key_id << "\n";
-
-  switch (callback_data_ptr->released_key_id) {
-    case 'w': case 'W':
-      app_ptr->camera_.MoveForward(0.1);
-      break;
-    case 's': case 'S':
-      app_ptr->camera_.MoveBackward(0.1);
-      break;
-    case 'a': case 'A':
-      app_ptr->camera_.MoveLeft(0.1);
-      break;
-    case 'd': case 'D':
-      app_ptr->camera_.MoveRight(0.1);
-      break;
-    case 'q': case 'Q':
-      app_ptr->camera_.MoveAna(0.1);
-      break;
-    case 'e': case 'E':
-      app_ptr->camera_.MoveKata(0.1);
-      break;
-    case 'r': case 'R':
-      app_ptr->camera_.MoveUp(0.1);
-      break;
-    case 'f': case 'F':
-      app_ptr->camera_.MoveDown(0.1);
-      break;
-    case 'i': case 'I':
-      app_ptr->camera_.RotateUp(0.1);
-      break;
-    case 'k': case 'K':
-      app_ptr->camera_.RotateDown(0.1);
-      break;
-    case 'j': case 'J':
-      app_ptr->camera_.RotateLeft(0.1);
-      break;
-    case 'l': case 'L':
-      app_ptr->camera_.RotateRight(0.1);
-      break;
-    case 'u': case 'U':
-      app_ptr->camera_.RotateAna(0.1);
-      break;
-    case 'o': case 'O':
-      app_ptr->camera_.RotateKata(0.1);
-      break;
+void App::handle_keys() {
+  auto keys = Callback::GetInstance()->get_keys();
+  //std::cout << "keys: ";
+  for (int key : *keys) {
+    //std::cout << (char)key << " ";
+    switch (key) {
+      case 'w': case 'W':
+        camera_.MoveForward(0.1);
+        break;
+      case 's': case 'S':
+        camera_.MoveBackward(0.1);
+        break;
+      case 'a': case 'A':
+        camera_.MoveLeft(0.1);
+        break;
+      case 'd': case 'D':
+        camera_.MoveRight(0.1);
+        break;
+      case 'q': case 'Q':
+        camera_.MoveAna(0.1);
+        break;
+      case 'e': case 'E':
+        camera_.MoveKata(0.1);
+        break;
+      case 'r': case 'R':
+        camera_.MoveUp(0.1);
+        break;
+      case 'f': case 'F':
+        camera_.MoveDown(0.1);
+        break;
+      case 'i': case 'I':
+        camera_.RotateUp(0.1);
+        break;
+      case 'k': case 'K':
+        camera_.RotateDown(0.1);
+        break;
+      case 'j': case 'J':
+        camera_.RotateLeft(0.1);
+        break;
+      case 'l': case 'L':
+        camera_.RotateRight(0.1);
+        break;
+      case 'u': case 'U':
+        camera_.RotateAna(0.1);
+        break;
+      case 'o': case 'O':
+        camera_.RotateKata(0.1);
+        break;
+    }
   }
-  app_ptr->camera_.GetViewProj().Print();
+  //std::cout << "\n";
+  //camera_.GetViewProj().Print();
 }
 
 /*
@@ -763,6 +778,11 @@ void App::run() { //window_ptr_->run();
   while(!ShouldQuit()) {
     glfwPollEvents();
     draw_frame(this);
+    //auto cur_time = std::chrono::steady_clock::now();
+    //std::chrono::duration<double, std::milli> dif = cur_time - prev_time;
+    //std::cout << dif.count() << "\n";
+    //prev_time = cur_time;
+    handle_keys();
   }
 }
 

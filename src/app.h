@@ -2,6 +2,7 @@
 #define APP_H_
 
 // Imports.
+#include <chrono>
 #include <memory>
 #include "misc/window.h"
 #include "wrappers/instance.h"
@@ -91,9 +92,11 @@ class App {
 
   // Keyboard.
   void init_camera();
-  static void on_keypress_event(void* callback_data_raw_ptr, void* app_raw_ptr);
+  void handle_keys();
 
   VkSurfaceKHR surface_;
+
+  std::chrono::time_point<std::chrono::steady_clock> prev_time;
 };
 
 #endif  // APP_H_
