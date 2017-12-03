@@ -587,19 +587,19 @@ void App::init_shaders() {
   std::stringstream buffer;
   std::ifstream t;
 
-  t.open("../src/shaders/example.frag");
+  t.open("shaders/example.frag");
   buffer << t.rdbuf();
   t.close();
   std::string frag = buffer.str();
   
   buffer.str(std::string());
-  t.open("../src/shaders/example.vert");
+  t.open("shaders/example.vert");
   buffer << t.rdbuf();
   t.close();
   std::string vert = buffer.str();
 
   buffer.str(std::string());
-  t.open("../src/shaders/example.comp");
+  t.open("shaders/example.comp");
   buffer << t.rdbuf();
   t.close();
   std::string compute = buffer.str();
