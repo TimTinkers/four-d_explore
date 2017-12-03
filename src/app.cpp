@@ -1,8 +1,6 @@
 // Imports.
 #include "app.h"
 
-#include <X11/Xlib-xcb.h>
-
 #include <cmath>
 #include <fstream>
 #include <functional>
@@ -41,6 +39,7 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #else
 #define GLFW_EXPOSE_NATIVE_X11
+#include <X11/Xlib-xcb.h>
 #endif
 #include "GLFW/glfw3native.h"
 
@@ -307,14 +306,14 @@ void App::init_shaders() {
   std::stringstream buffer;
   std::ifstream t;
 
-  t.open("../src/shaders/example.frag");
+  t.open("shaders/example.frag");
   buffer << t.rdbuf();
   t.close();
   std::string frag = buffer.str();
 
   buffer.str(std::string());
 
-  t.open("../src/shaders/example.vert");
+  t.open("shaders/example.vert");
   buffer << t.rdbuf();
   t.close();
   std::string vert = buffer.str();
