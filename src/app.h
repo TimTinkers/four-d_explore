@@ -2,6 +2,7 @@
 #define APP_H_
 
 // Imports.
+#include <chrono>
 #include <memory>
 #include "misc/window.h"
 #include "wrappers/instance.h"
@@ -9,6 +10,9 @@
 #include "wrappers/rendering_surface.h"
 #include "wrappers/swapchain.h"
 #include "misc\time.h"
+
+#include "camera.h"
+#include "Window.h"
 
 // Global variables.
 #define N_SWAPCHAIN_IMAGES 3
@@ -45,6 +49,8 @@ class App {
   VkDeviceSize                   m_sine_data_buffer_size;
   std::shared_ptr<Anvil::Buffer> m_sine_props_data_buffer_ptr;
   VkDeviceSize                   m_sine_props_data_buffer_size_per_swapchain_image;
+
+  Camera camera_;
 
   // Boilerplate initialization.
   void init_vulkan();
@@ -115,6 +121,14 @@ class App {
   // Frame rendering.
   void update_data_ub_contents(uint32_t in_n_swapchain_image);
   static void draw_frame(void* app_raw_ptr);
+
+  // Input.
+  void init_camera();
+  void handle_keys();
+
+  VkSurfaceKHR surface_;
+
+  std::chrono::time_point<std::chrono::steady_clock> prev_time;
 };
 
 #endif  // APP_H_

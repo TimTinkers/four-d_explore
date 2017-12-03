@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <string>
 
@@ -32,9 +33,20 @@
 #include "wrappers/render_pass.h"
 #include "wrappers/semaphore.h"
 #include "wrappers/shader_module.h"
+
 #include "wrappers/swapchain.h"
+#include "vulkan/vulkan.h"
 
 #include "matrix.h"
+#include "callback.h"
+
+#ifdef _WIN32
+#define GLFW_EXPOSE_NATIVE_WIN32
+#else
+#define GLFW_EXPOSE_NATIVE_X11
+#include <X11/Xlib-xcb.h>
+#endif
+#include "GLFW/glfw3native.h"
 
 // Debug flags.
 // #define ENABLE_VALIDATION
@@ -50,6 +62,8 @@
 #define APP_NAME "Four Dimensional Exploration"
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
+
+#define GLFW
 
 // Field variables.
 // Mesh data.
@@ -75,7 +89,8 @@ Create the app and assign default values to several field variables.
 */
 App::App()
     : n_last_semaphore_used_(0),
-      n_swapchain_images_(N_SWAPCHAIN_IMAGES) {}
+      n_swapchain_images_(N_SWAPCHAIN_IMAGES),
+      prev_time(std::chrono::steady_clock::now()) {}
 
 /*
  This function initializes the app through a series of smaller initialization
@@ -107,7 +122,9 @@ void App::init() {
   init_gfx_pipelines();
   printf("s9\n");
   init_command_buffers();
+
   printf("s10\n");
+  init_camera();
 }
 
 /*
@@ -133,13 +150,19 @@ void App::init_vulkan() {
   Initialize the window for displaying this app.
  */
 void App::init_window() {
+  InitializeWindow(WINDOW_WIDTH, WINDOW_HEIGHT, APP_NAME);
+
 #ifdef _WIN32
   const Anvil::WindowPlatform platform = Anvil::WINDOW_PLATFORM_SYSTEM;
+  WindowHandle handle = glfwGetWin32Window(GetGLFWWindow());
+  void* xcb_ptr = nullptr;
 #else
   const Anvil::WindowPlatform platform = Anvil::WINDOW_PLATFORM_XCB;
+  WindowHandle handle = glfwGetX11Window(GetGLFWWindow());
+  void* xcb_ptr = (void*)XGetXCBConnection(glfwGetX11Display());
 #endif
-  window_ptr_ = Anvil::WindowFactory::create_window(
-      platform, APP_NAME, WINDOW_WIDTH, WINDOW_HEIGHT, draw_frame, this);
+
+  window_ptr_ = Anvil::WindowFactory::create_window(platform, handle, xcb_ptr);
 }
 
 /*
@@ -150,6 +173,7 @@ void App::init_swapchain() {
   std::shared_ptr<Anvil::SGPUDevice> device_locked_ptr(device_ptr_);
   rendering_surface_ptr_ =
       Anvil::RenderingSurface::create(instance_ptr_, device_ptr_, window_ptr_);
+  //rendering_surface_ptr_->get_surface_ptr() = &surface_;
 
   rendering_surface_ptr_->set_name("Main rendering surface");
 
@@ -567,7 +591,7 @@ void App::init_shaders() {
   buffer << t.rdbuf();
   t.close();
   std::string frag = buffer.str();
-
+  
   buffer.str(std::string());
   t.open("../src/shaders/example.vert");
   buffer << t.rdbuf();
@@ -1195,6 +1219,67 @@ void App::init_command_buffers() {
 	}
 }
 
+void App::init_camera() {
+  camera_  = Camera();
+  camera_.UpdateView();
+  camera_.UpdateProj();
+  camera_.GetViewProj().Print();
+  //window_ptr_->register_for_callbacks(
+  //    Anvil::WINDOW_CALLBACK_ID_KEYPRESS_RELEASED, on_keypress_event, this);
+  //auto fun = std::bind(&App::on_keypress_event, this, std::placeholders::_1,
+  //                     std::placeholders::_2, std::placeholders::_3,
+  //                     std::placeholders::_4, std::placeholders::_5);
+  //glfwSetKeyCallback(GetGLFWWindow(), &fun);
+  //glfwSetKeyCallback(
+  //    GetGLFWWindow(),
+  //    std::bind(&App::on_keypress_event, this, std::placeholders::_1,
+  //              std::placeholders::_2, std::placeholders::_3,
+  //              std::placeholders::_4, std::placeholders::_5));
+  Callback::GetInstance()->init(this, &camera_);
+  glfwSetKeyCallback(GetGLFWWindow(), Callback::on_keypress_event);
+  glfwSetMouseButtonCallback(GetGLFWWindow(), Callback::on_mouse_button_event);
+  glfwSetCursorPosCallback(GetGLFWWindow(), Callback::on_mouse_move_event);
+  glfwSetScrollCallback(GetGLFWWindow(), Callback::on_mouse_scroll_event);
+
+  glfwSetInputMode(GetGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+}
+
+void App::handle_keys() {
+  auto keys = Callback::GetInstance()->get_keys();
+  //std::cout << "keys: ";
+  for (int key : *keys) {
+    //std::cout << (char)key << " ";
+    switch (key) {
+      case 'w': case 'W':
+        camera_.MoveForward(0.1);
+        break;
+      case 's': case 'S':
+        camera_.MoveBackward(0.1);
+        break;
+      case 'a': case 'A':
+        camera_.MoveLeft(0.1);
+        break;
+      case 'd': case 'D':
+        camera_.MoveRight(0.1);
+        break;
+      case 'q': case 'Q':
+        camera_.MoveAna(0.1);
+        break;
+      case 'e': case 'E':
+        camera_.MoveKata(0.1);
+        break;
+      case 'r': case 'R':
+        camera_.MoveUp(0.1);
+        break;
+      case 'f': case 'F':
+        camera_.MoveDown(0.1);
+        break;
+    }
+  }
+  //std::cout << "\n";
+  camera_.GetViewProj().Print();
+}
+
 /*
   The main development portion of the code, now that boilerplate
   and pipeline setup is completed.
@@ -1307,7 +1392,18 @@ void App::draw_frame(void* app_raw_ptr) {
   ++n_frames_rendered;
 }
 
-void App::run() { window_ptr_->run(); }
+void App::run() { //window_ptr_->run(); 
+  while(!ShouldQuit()) {
+    glfwPollEvents();
+    draw_frame(this);
+    //auto cur_time = std::chrono::steady_clock::now();
+    //std::chrono::duration<double, std::milli> dif = cur_time - prev_time;
+    //std::cout << dif.count() << "\n";
+    //prev_time = cur_time;
+    handle_keys();
+  }
+  DestroyWindow();
+}
 
 VkBool32 App::on_validation_callback(VkDebugReportFlagsEXT message_flags,
                                      VkDebugReportObjectTypeEXT object_type,

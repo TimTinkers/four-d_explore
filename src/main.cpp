@@ -1,12 +1,16 @@
-#include "app.h"
-#include <memory>
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+#include "GLFW/glfw3.h"
+
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <streambuf>
 #include <sstream>
+
+#include "matrix.h"
+#include "app.h"
 
 // Before we really dove into blockchain work.
 int main() {
@@ -17,6 +21,7 @@ int main() {
   buffer << t.rdbuf();
   std::cout << buffer.str().c_str();
   */
+<<<<<<< HEAD
   glm::mat4 mat = glm::perspective(30.0f, 1.0f, 2.0f, 10.0f);
   for (int i = 0; i < 4; ++i) {
     for (int j = 0; j < 4; ++j) {
@@ -35,6 +40,13 @@ int main() {
   std::shared_ptr<App> app_ptr(new App());
 
   printf("Initializing...\n");
+=======
+
+  mat5::perspective(30, 0.75, 0.75, 1, 20).Print();
+  mat5::lookAt(glm::vec4(0,0,0,-1), glm::vec4(0,0,0,0), glm::vec4(0,1,0,0), glm::vec4(1,0,0,0)).Print();
+
+  std::shared_ptr<App> app_ptr(new App());
+>>>>>>> 0de48caba3c8d8457cc2275015ff902e2b94cf95
   app_ptr->init();
   printf("Initialized. Running...\n");
   app_ptr->run();
