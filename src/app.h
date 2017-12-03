@@ -11,6 +11,7 @@
 #include "wrappers/swapchain.h"
 
 #include "camera.h"
+#include "terrain.h"
 #include "Window.h"
 
 // Global variables.

@@ -306,14 +306,14 @@ void App::init_shaders() {
   std::stringstream buffer;
   std::ifstream t;
 
-  t.open("shaders/example.frag");
+  t.open("../src/shaders/example.frag");
   buffer << t.rdbuf();
   t.close();
   std::string frag = buffer.str();
 
   buffer.str(std::string());
 
-  t.open("shaders/example.vert");
+  t.open("../src/shaders/example.vert");
   buffer << t.rdbuf();
   t.close();
   std::string vert = buffer.str();
