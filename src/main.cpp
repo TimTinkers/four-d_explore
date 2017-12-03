@@ -32,6 +32,9 @@ int main() {
 
   std::shared_ptr<App> app_ptr(new App());
   app_ptr->init();
+  printf("Initialized. Running...\n");
   app_ptr->run();
+  printf("Run function completed.\n");
+
   return 0;
 }
