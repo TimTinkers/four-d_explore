@@ -1,0 +1,45 @@
+#version 310 es
+
+layout(local_size_x = N_VERTICES_PER_SINE, local_size_y = 1, local_size_z = 1) in;
+
+layout(std140, set = 0, binding = 0) readonly restrict buffer dataOffsetBlock {
+	vec2 offsets;
+};
+
+layout(std140, set = 0, binding = 1) restrict writeonly buffer sineSB {
+	vec4 data[N_VERTICES_PER_SINE * 2];
+} result_vertex_sine;
+
+layout(std140, set = 1, binding = 0) uniform propsBlock {
+	float t;
+};
+
+layout (push_constant) uniform pushConstants {
+	int n_sine_pair;
+} pc;
+	
+void main() {
+
+	int current_invocation_id = int(gl_GlobalInvocationID.x);
+	int curve_index = current_invocation_id / N_VERTICES_PER_SINE;
+	float result_y;
+	float result_z;
+	float x_normalized = float(current_invocation_id % N_VERTICES_PER_SINE) 
+		/ float(N_VERTICES_PER_SINE - 1);
+	float x = x_normalized * 3.14152965 * 2.0;
+
+	if (curve_index > 1) {
+		return;
+	}
+	
+	if (curve_index == 0) {
+		result_y = sin(mod(t + offsets[0] + x, 3.14152965 * 2.0) );
+		result_z = float(2 * pc.n_sine_pair) / float(N_SINE_PAIRS * 2);
+	} else {
+		result_y = sin(t + offsets[1] + x);
+		result_z = float(1 + 2 * pc.n_sine_pair) / float(N_SINE_PAIRS * 2);
+	}
+
+	result_vertex_sine.data[current_invocation_id] = 
+		vec4((2.0 * x_normalized - 1.0), result_y, result_z, 1.0);
+}

@@ -17,8 +17,6 @@ int main() {
   buffer << t.rdbuf();
   std::cout << buffer.str().c_str();
   */
-
-  std::shared_ptr<App> app_ptr(new App());
   glm::mat4 mat = glm::perspective(30.0f, 1.0f, 2.0f, 10.0f);
   for (int i = 0; i < 4; ++i) {
     for (int j = 0; j < 4; ++j) {
@@ -33,7 +31,14 @@ int main() {
     }
     std::cout << "\n";
   }
+
+  std::shared_ptr<App> app_ptr(new App());
+
+  printf("Initializing...\n");
   app_ptr->init();
+  printf("Initialized. Running...\n");
   app_ptr->run();
+  printf("Run function completed.\n");
+
   return 0;
 }
