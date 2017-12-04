@@ -109,7 +109,7 @@ void App::deinit() {
 		m_fbos[n_fbo] = nullptr;
 	}
 
-	m_consumer_dsg_ptr.reset();
+	renderDescriptorGroupPointer.reset();
 	m_consumer_fs_ptr.reset();
 	m_consumer_render_pass_ptr.reset();
 	m_consumer_vs_ptr.reset();
@@ -248,7 +248,7 @@ void App::init_buffers() {
 		inputCubeElementOffsets.push_back(totalInputCubeBufferSize);
 
 		// Account for space necessary to hold a vec4 and any padding required to meet the alignment requirement.
-		totalInputCubeBufferSize += sizeof(glm::vec4);
+		totalInputCubeBufferSize += (sizeof(float) * 4);
 		totalInputCubeBufferSize += (sb_data_alignment_requirement - totalInputCubeBufferSize
 			% sb_data_alignment_requirement) % sb_data_alignment_requirement;
 	}
@@ -264,9 +264,32 @@ void App::init_buffers() {
 
 	// Prepare the actual values of input cube vertices.
 	std::vector<glm::vec4> vertexData = { 
-		glm::vec4(0, 0, 0, 1), glm::vec4(1, 0, 0, 1), glm::vec4(0, 1, 0, 1), glm::vec4(0, 0, 1, 1),
-		glm::vec4(1, 1, 0, 1), glm::vec4(1, 0, 1, 1), glm::vec4(0, 1, 1, 1), glm::vec4(1, 1, 1, 1) 
+		glm::vec4(0, 0, 1, 1), glm::vec4(0.5, 0, 1, 1), glm::vec4(0.5, 0.5, 1, 1), glm::vec4(0, 0.5, 1, 1),
+		glm::vec4(0.5, 0, 1, 1), glm::vec4(0.5, 0.5, 1, 1), glm::vec4(0, 0, 1, 1), glm::vec4(0, 0.5, 1, 1)
 	};
+
+	/*
+		vec4(0, 0, 1, 1);
+	} else if (current_invocation_id == 1) {
+		outputMeshVertices.data[current_invocation_id] = vec4(0.5, 0, 1, 1);
+	} else if (current_invocation_id == 2) {
+		outputMeshVertices.data[current_invocation_id] = vec4(0.5, 0.5, 1, 1);
+	} else if (current_invocation_id == 3) {
+		outputMeshVertices.data[current_invocation_id] = vec4(0, 0.5, 1, 1);
+	} else if (current_invocation_id == 4) {
+		outputMeshVertices.data[current_invocation_id] = vec4(0.5, 0, 1, 1);
+	} else if (current_invocation_id == 5) {
+		outputMeshVertices.data[current_invocation_id] = vec4(0.5, 0.5, 1, 1);
+	} else if (current_invocation_id == 6) {
+		outputMeshVertices.data[current_invocation_id] = vec4(0, 0, 1, 1);
+	} else if (current_invocation_id == 7) {
+		outputMeshVertices.data[current_invocation_id] = vec4(0, 0.5, 1, 1);
+	
+	
+	*/
+
+
+
 	std::unique_ptr<char> inputCubeBufferValues;
 	inputCubeBufferValues.reset(new char[static_cast<uintptr_t>(totalInputCubeBufferSize)]);
 	for (uint32_t vertexIndex = 0; vertexIndex < 8; ++vertexIndex) {
@@ -435,13 +458,15 @@ void App::init_command_buffers() {
 			computeShaderDescriptorGroupPointer->get_descriptor_set(0),
 			computeShaderDescriptorGroupPointer->get_descriptor_set(1)
 		};
+
+		printf("c0.1\n");
 		static const uint32_t n_producer_dses = sizeof(producer_dses) / sizeof(producer_dses[0]);
 
-		printf("c1\n");
+		printf("c1 n_producer_dses: %d\n", n_producer_dses);
 		draw_cmd_buffer_ptr->record_bind_descriptor_sets(VK_PIPELINE_BIND_POINT_COMPUTE,
 			computePipelineLayoutPointer,
 			0, /* firstSet */
-			2,
+			n_producer_dses,
 			producer_dses,
 			0,
 			nullptr);
@@ -460,7 +485,7 @@ void App::init_command_buffers() {
 		VkRect2D     render_area;
 
 		clear_values[0].color.float32[0] = 0.25f;
-		clear_values[0].color.float32[1] = 0.5f;
+		clear_values[0].color.float32[1] = 0.50f;
 		clear_values[0].color.float32[2] = 0.75f;
 		clear_values[0].color.float32[3] = 1.0f;
 		clear_values[1].depthStencil.depth = 1.0f;
@@ -479,9 +504,9 @@ void App::init_command_buffers() {
 			m_consumer_render_pass_ptr,
 			VK_SUBPASS_CONTENTS_INLINE);
 		{
+			const float max_line_width = m_device_ptr.lock()->get_physical_device_properties().limits.lineWidthRange[1];
 			std::shared_ptr<Anvil::DescriptorSet> renderer_dses[] = {
-				m_consumer_dsg_ptr->get_descriptor_set(0),
-				m_consumer_dsg_ptr->get_descriptor_set(1) };
+				renderDescriptorGroupPointer->get_descriptor_set(0) };
 			const uint32_t n_renderer_dses = sizeof(renderer_dses) / sizeof(renderer_dses[0]);
 
 			std::shared_ptr<Anvil::PipelineLayout> renderer_pipeline_layout_ptr;
@@ -490,6 +515,30 @@ void App::init_command_buffers() {
 
 			draw_cmd_buffer_ptr->record_bind_pipeline(VK_PIPELINE_BIND_POINT_GRAPHICS,
 				renderPipelineID);
+
+			static const VkDeviceSize offsets = 0;
+			draw_cmd_buffer_ptr->record_bind_vertex_buffers(0, // startBinding
+				1, // bindingCount
+				&inputCubeBufferPointer,
+				&offsets);
+
+			// Set line width.
+			float lineWidth = 2;
+			draw_cmd_buffer_ptr->record_set_line_width(lineWidth);
+			printf("c4\n");
+
+			draw_cmd_buffer_ptr->record_bind_descriptor_sets(VK_PIPELINE_BIND_POINT_GRAPHICS,
+				renderer_pipeline_layout_ptr,
+				0, /* firstSet */
+				n_renderer_dses,
+				renderer_dses,
+				0,
+				nullptr);
+
+			draw_cmd_buffer_ptr->record_draw(8,
+				1,                /* instanceCount */
+				0,                /* firstVertex   */
+				0); /* firstInstance */
 		}
 		draw_cmd_buffer_ptr->record_end_render_pass();
 		printf("c5\n");
@@ -535,36 +584,16 @@ void App::init_dsgs() {
 
 	computeShaderDescriptorGroupPointer->add_binding(0, /* n_set      */
 		0, /* binding    */
-		VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+		VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
 		1, /* n_elements */
 		VK_SHADER_STAGE_COMPUTE_BIT);
-
-	// Bind to the compute shader a uniform layout for storing the current time.
-	computeShaderDescriptorGroupPointer->set_binding_item(
-		0,	// Set.
-		0,	// Binding.
-		Anvil::DescriptorSet::DynamicUniformBufferBindingElement(
-			timeUniformPointer,
-			0,	// Offset.
-			timeUniformSizePerSwapchain));
 
 	printf("dsg1\n");
 	computeShaderDescriptorGroupPointer->add_binding(1,	// Set.
 		0,	// Binding.
-		VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+		VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
 		1, // n elements.
 		VK_SHADER_STAGE_COMPUTE_BIT);
-
-	printf("dsg2\n");
-	// NEW: cube
-	// Bind to the compute shader a buffer for recording input cube vertices.
-	computeShaderDescriptorGroupPointer->set_binding_item(
-		1,	// Set.
-		0,	// Binding.
-		Anvil::DescriptorSet::DynamicStorageBufferBindingElement(
-			inputCubeBufferPointer,
-			0,	// Offset.
-			sizeof(glm::vec4)));
 
 	printf("dsg3\n");
 	computeShaderDescriptorGroupPointer->add_binding(1,	// Set.
@@ -573,36 +602,51 @@ void App::init_dsgs() {
 		1,	// n elements.
 		VK_SHADER_STAGE_COMPUTE_BIT);
 
+	// Bind to the compute shader a uniform layout for storing the current time.
+	computeShaderDescriptorGroupPointer->set_binding_item(
+		0,	// Set.
+		0,	// Binding.
+		Anvil::DescriptorSet::UniformBufferBindingElement(
+			timeUniformPointer,
+			0,	// Offset.
+			timeUniformSizePerSwapchain));
+
+	printf("dsg2\n");
+	// NEW: cube
+	// Bind to the compute shader a buffer for recording input cube vertices.
+	computeShaderDescriptorGroupPointer->set_binding_item(
+		1,	// Set.
+		0,	// Binding.
+		Anvil::DescriptorSet::UniformBufferBindingElement(
+			inputCubeBufferPointer,
+			0,	// Offset.
+			sizeof(float) * 4 * 8));
+
 	printf("dsg4\n");
 	// Bind to the compute shader a buffer for recording the output cube vertices.
 	computeShaderDescriptorGroupPointer->set_binding_item(
 		1,	// Set.
 		1,	// Binding.
-		Anvil::DescriptorSet::DynamicStorageBufferBindingElement(
+		Anvil::DescriptorSet::StorageBufferBindingElement(
 			outputCubeVerticesBufferPointer,
 			0,	// Offset.
-			sizeof(glm::vec4) * 8));
+			sizeof(float) * 4 * 8));
 	printf("dsg5\n");
 
 	/* Set up the descriptor set layout for the renderer program.  */
-	m_consumer_dsg_ptr = Anvil::DescriptorSetGroup::create(m_device_ptr,
+	renderDescriptorGroupPointer = Anvil::DescriptorSetGroup::create(m_device_ptr,
 		false, /* releaseable_sets */
-		2      /* n_sets           */);
+		1      /* n_sets           */);
 
-	m_consumer_dsg_ptr->add_binding(0, /* n_set      */
+	renderDescriptorGroupPointer->add_binding(0, /* n_set      */
 		0, /* binding    */
-		VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC,
-		1, /* n_elements */
-		VK_SHADER_STAGE_VERTEX_BIT);
-	m_consumer_dsg_ptr->add_binding(1, /* n_set      */
-		0, /* binding    */
-		VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC,
+		VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
 		1, /* n_elements */
 		VK_SHADER_STAGE_VERTEX_BIT);
 
-	m_consumer_dsg_ptr->set_binding_item(0, /* n_set         */
+	renderDescriptorGroupPointer->set_binding_item(0, /* n_set         */
 		0, /* binding_index */
-		Anvil::DescriptorSet::DynamicStorageBufferBindingElement(outputCubeVerticesBufferPointer,
+		Anvil::DescriptorSet::StorageBufferBindingElement(outputCubeVerticesBufferPointer,
 			0, /* in_start_offset */
 			sizeof(float) * 4 * 8));
 }
@@ -705,19 +749,19 @@ void App::init_gfx_pipelines() {
 
 	gfx_manager_ptr->add_vertex_attribute(renderPipelineID,
 		0, /* location */
-		VK_FORMAT_R8G8_UNORM,
+		VK_FORMAT_R32G32B32A32_SFLOAT,
 		0,                /* offset_in_bytes */
-		sizeof(char) * 2, /* stride_in_bytes */
+		sizeof(float) * 1, /* stride_in_bytes */
 		VK_VERTEX_INPUT_RATE_INSTANCE);
 	gfx_manager_ptr->set_pipeline_dsg(renderPipelineID,
-		m_consumer_dsg_ptr);
+		renderDescriptorGroupPointer);
 	gfx_manager_ptr->set_input_assembly_properties(renderPipelineID,
-		VK_PRIMITIVE_TOPOLOGY_LINE_STRIP);
+		VK_PRIMITIVE_TOPOLOGY_LINE_LIST);
 	gfx_manager_ptr->set_rasterization_properties(renderPipelineID,
 		VK_POLYGON_MODE_FILL,
 		VK_CULL_MODE_NONE,
 		VK_FRONT_FACE_COUNTER_CLOCKWISE,
-		1.0f /* line_width */);
+		10.0f /* line_width */);
 	gfx_manager_ptr->toggle_depth_test(renderPipelineID,
 		true, /* should_enable */
 		VK_COMPARE_OP_LESS_OR_EQUAL);
@@ -729,9 +773,7 @@ void App::init_gfx_pipelines() {
 }
 
 void App::init_images() {
-	for (uint32_t n_depth_image = 0;
-	n_depth_image < N_SWAPCHAIN_IMAGES;
-		++n_depth_image) {
+	for (uint32_t n_depth_image = 0; n_depth_image < N_SWAPCHAIN_IMAGES; ++n_depth_image) {
 		m_depth_images[n_depth_image] = Anvil::Image::create_nonsparse(m_device_ptr,
 			VK_IMAGE_TYPE_2D,
 			VK_FORMAT_D16_UNORM,

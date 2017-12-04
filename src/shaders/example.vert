@@ -8,5 +8,7 @@ layout(set = 0, binding = 0) buffer cubeOutputVertices {
 };
 
 void main() {
-	fs_color = in_color;
+	vec4 vOut = vertex_out[gl_VertexIndex];
+	fs_color = vec4(gl_VertexIndex / 8.0f, 0, 0, 1);
+	gl_Position = vOut;
 }

@@ -63,7 +63,7 @@ private:
 	std::shared_ptr<Anvil::Window>           m_window_ptr;
 
 	// Create descriptor groups for the compute pipeline.
-	std::shared_ptr<Anvil::DescriptorSetGroup> m_consumer_dsg_ptr;
+	std::shared_ptr<Anvil::DescriptorSetGroup> renderDescriptorGroupPointer;
 	std::shared_ptr<Anvil::DescriptorSetGroup> computeShaderDescriptorGroupPointer;
 
 	std::shared_ptr<Anvil::ShaderModuleStageEntryPoint> m_consumer_fs_ptr;
