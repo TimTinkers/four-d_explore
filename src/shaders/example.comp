@@ -3,7 +3,7 @@
 // Takes in a time value, time offset values, and a number of vertices.
 // Populates a buffer of output vertices to complete the sine waves.
 
-layout(local_size_x = 8) in;
+layout(local_size_x = 11) in;
 
 // A uniform value representing the time.
 layout(set = 0, binding = 0) uniform timeUniform {
@@ -11,41 +11,41 @@ layout(set = 0, binding = 0) uniform timeUniform {
 };
 
 // The input cube vertices.
-layout(set = 1, binding = 0) uniform inputCubeVertices {
-	vec4 inputMeshVertices[8];
+layout(set = 1, binding = 0) buffer inputCubeVertices {
+	vec4 inputMeshVertices[11];
 };
 
 // The output buffer to populate with mesh output points.
 layout(set = 1, binding = 1) buffer outputCubeVertices {
-	vec4 data[8];
+	vec4 data[11];
 } outputMeshVertices;
 
 // The actual computation.
 void main() {
 
 	int current_invocation_id = int(gl_GlobalInvocationID.x);
-	if (current_invocation_id > 7) {
+	if (current_invocation_id > 10) {
 		return;
 	}
 	
 	vec4 inputPosition = inputMeshVertices[current_invocation_id];
-	if (current_invocation_id == 0) {
-		outputMeshVertices.data[current_invocation_id] = vec4(0, 0, 1, 1);
-	} else if (current_invocation_id == 1) {
-		outputMeshVertices.data[current_invocation_id] = vec4(0.5, 0, 1, 1);
-	} else if (current_invocation_id == 2) {
-		outputMeshVertices.data[current_invocation_id] = vec4(0.5, 0.5, 1, 1);
-	} else if (current_invocation_id == 3) {
-		outputMeshVertices.data[current_invocation_id] = vec4(0, 0.5, 1, 1);
-	} else if (current_invocation_id == 4) {
-		outputMeshVertices.data[current_invocation_id] = vec4(0.5, 0, 1, 1);
-	} else if (current_invocation_id == 5) {
-		outputMeshVertices.data[current_invocation_id] = vec4(0.5, 0.5, 1, 1);
-	} else if (current_invocation_id == 6) {
-		outputMeshVertices.data[current_invocation_id] = vec4(0, 0, 1, 1);
-	} else if (current_invocation_id == 7) {
-		outputMeshVertices.data[current_invocation_id] = vec4(0, 0.5, 1, 1);
-	}
+	//if (current_invocation_id == 0) {
+	//	outputMeshVertices.data[current_invocation_id] = vec4(0, 0, 1, 1);
+	//} else if (current_invocation_id == 1) {
+	//	outputMeshVertices.data[current_invocation_id] = vec4(0.5, 0, 1, 1);
+	//} else if (current_invocation_id == 2) {
+	//	outputMeshVertices.data[current_invocation_id] = vec4(0.5, 0.5, 1, 1);
+	//} else if (current_invocation_id == 3) {
+	//	outputMeshVertices.data[current_invocation_id] = vec4(0, 0.5, 1, 1);
+	//} else if (current_invocation_id == 4) {
+	//	outputMeshVertices.data[current_invocation_id] = vec4(0.5, 0, 1, 1);
+	//} else if (current_invocation_id == 5) {
+	//	outputMeshVertices.data[current_invocation_id] = vec4(0.5, 0.5, 1, 1);
+	//} else if (current_invocation_id == 6) {
+	//	outputMeshVertices.data[current_invocation_id] = vec4(0, 0, 1, 1);
+	//} else if (current_invocation_id == 7) {
+	//	outputMeshVertices.data[current_invocation_id] = vec4(0, 0.5, 1, 1);
+	//}
 
-	// outputMeshVertices.data[current_invocation_id] = inputPosition;
+	outputMeshVertices.data[current_invocation_id] = inputPosition;
 }
