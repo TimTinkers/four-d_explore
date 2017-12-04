@@ -3,11 +3,11 @@
 layout(location = 0)      in  vec4 in_color;
 layout(location = 0) flat out vec4 fs_color;
 
-layout(std430, set = 0, binding = 0) restrict readonly buffer evenSineSB {
+layout(set = 0, binding = 0) buffer evenSineSB {
 	vec4 vertex_sine1[N_VERTICES_PER_SINE];
 };
 
-layout(std430, set = 1, binding = 0) restrict readonly buffer oddSineSB {
+layout(set = 1, binding = 0) buffer oddSineSB {
 	vec4 vertex_sine2[N_VERTICES_PER_SINE];
 };
 
