@@ -77,7 +77,7 @@ private:
 
 	Anvil::GraphicsPipelineID          m_consumer_pipeline_id;
 	std::shared_ptr<Anvil::RenderPass> m_consumer_render_pass_ptr;
-	Anvil::ComputePipelineID           m_producer_pipeline_id;
+	Anvil::ComputePipelineID           computePipelineID;
 
 	std::shared_ptr<Anvil::PrimaryCommandBuffer> m_command_buffers[N_SWAPCHAIN_IMAGES];
 	std::shared_ptr<Anvil::Image>                m_depth_images[N_SWAPCHAIN_IMAGES];
@@ -86,7 +86,6 @@ private:
 
 	std::shared_ptr<Anvil::Buffer> m_sine_color_buffer_ptr;        /* N_SINE_PAIRS * 2 * vec2; data stored as R8G8_UNORM */
 	VkDeviceSize                   m_sine_color_buffer_size;
-	std::vector<VkDeviceSize>      m_sine_data_buffer_offsets;
 	
 	// Create a pointer to a buffer for sending sine wave time offsets to the compute shader buffer.
 	VkDeviceSize totalWaveOffsetBufferSize;
@@ -99,7 +98,19 @@ private:
 	
 	// Create a pointer to a buffer for storing the output sine wave vertices of the compute shader.
 	VkDeviceSize outputVerticesBufferSize;
+	std::vector<VkDeviceSize> outputDataOffsetSizes;
 	std::shared_ptr<Anvil::Buffer> outputVerticesBufferPointer;
+
+	// NEW: Cube.
+	// Create a pointer to a buffer for storing the output cube vertices.
+	VkDeviceSize outputCubeVerticesBufferSize;
+	std::vector<VkDeviceSize> outputCubeVerticesBufferSizes;
+	std::shared_ptr<Anvil::Buffer> outputCubeVerticesBufferPointer;
+
+	// Create a pointer to a buffer for sending input cube vertices to the compute shader buffer.
+	VkDeviceSize totalInputCubeBufferSize;
+	std::vector<VkDeviceSize> inputCubeElementOffsets;
+	std::shared_ptr<Anvil::Buffer> inputCubeBufferPointer;
 
 	uint32_t       m_n_last_semaphore_used;
 	const uint32_t m_n_swapchain_images;

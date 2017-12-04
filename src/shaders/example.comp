@@ -25,6 +25,24 @@ layout (push_constant) uniform pushConstants {
 	int n_sine_pair;
 } pc;
 
+
+
+
+// The input cube vertices.
+layout(set = 2, binding = 0) buffer inputCubeVertices {
+	vec4 inputMeshVertices;
+};
+
+// The output buffer to populate with mesh output points.
+layout(set = 2, binding = 1) buffer outputCubeVertices {
+	vec4 data[8];
+} outputMeshVertices;
+
+
+
+
+
+
 // The actual computation.
 void main() {
 
