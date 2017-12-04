@@ -52,11 +52,6 @@ private:
 		const char*                message,
 		void*                      user_arg);
 
-	void get_buffer_memory_offsets(uint32_t  n_sine_pair,
-		uint32_t* out_opt_sine1SB_offset_ptr,
-		uint32_t* out_opt_sine2SB_offset_ptr,
-		uint32_t* out_opt_offset_data_offset_ptr = nullptr);
-
 	/* Private variables */
 	std::weak_ptr<Anvil::SGPUDevice>         m_device_ptr;
 	std::shared_ptr<Anvil::Instance>         m_instance_ptr;
@@ -75,7 +70,7 @@ private:
 	std::shared_ptr<Anvil::ShaderModuleStageEntryPoint> m_consumer_vs_ptr;
 	std::shared_ptr<Anvil::ShaderModuleStageEntryPoint> m_producer_cs_ptr;
 
-	Anvil::GraphicsPipelineID          m_consumer_pipeline_id;
+	Anvil::GraphicsPipelineID          renderPipelineID;
 	std::shared_ptr<Anvil::RenderPass> m_consumer_render_pass_ptr;
 	Anvil::ComputePipelineID           computePipelineID;
 
@@ -83,23 +78,10 @@ private:
 	std::shared_ptr<Anvil::Image>                m_depth_images[N_SWAPCHAIN_IMAGES];
 	std::shared_ptr<Anvil::ImageView>            m_depth_image_views[N_SWAPCHAIN_IMAGES];
 	std::shared_ptr<Anvil::Framebuffer>          m_fbos[N_SWAPCHAIN_IMAGES];
-
-	std::shared_ptr<Anvil::Buffer> m_sine_color_buffer_ptr;        /* N_SINE_PAIRS * 2 * vec2; data stored as R8G8_UNORM */
-	VkDeviceSize                   m_sine_color_buffer_size;
 	
-	// Create a pointer to a buffer for sending sine wave time offsets to the compute shader buffer.
-	VkDeviceSize totalWaveOffsetBufferSize;
-	std::vector<VkDeviceSize> waveElementOffsets;
-	std::shared_ptr<Anvil::Buffer> waveOffsetBufferPointer;
-
 	// Create a pointer to a buffer for sending time data to the compute shader layout uniform.
 	VkDeviceSize timeUniformSizePerSwapchain;
 	std::shared_ptr<Anvil::Buffer> timeUniformPointer;
-	
-	// Create a pointer to a buffer for storing the output sine wave vertices of the compute shader.
-	VkDeviceSize outputVerticesBufferSize;
-	std::vector<VkDeviceSize> outputDataOffsetSizes;
-	std::shared_ptr<Anvil::Buffer> outputVerticesBufferPointer;
 
 	// NEW: Cube.
 	// Create a pointer to a buffer for storing the output cube vertices.

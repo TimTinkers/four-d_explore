@@ -3,76 +3,30 @@
 // Takes in a time value, time offset values, and a number of vertices.
 // Populates a buffer of output vertices to complete the sine waves.
 
-// The number of vertices to populate for each wave.
-layout(local_size_x = N_VERTICES_PER_SINE) in;
-
-// The time offset for each wave in a pair.
-layout(set = 0, binding = 0) buffer waveTimeOffsets {
-	vec2 offsets;
-};
-
-// The output buffer to populate with points along the sine waves.
-layout(set = 0, binding = 1) buffer outputWavePoints {
-	vec4 data[N_VERTICES_PER_SINE * 2];
-} outputVertices;
+layout(local_size_x = 8) in;
 
 // A uniform value representing the time.
-layout(set = 1, binding = 0) uniform timeUniform {
+layout(set = 0, binding = 0) uniform timeUniform {
 	float time;
 };
 
-layout (push_constant) uniform pushConstants {
-	int n_sine_pair;
-} pc;
-
-
-
-
 // The input cube vertices.
-layout(set = 2, binding = 0) buffer inputCubeVertices {
+layout(set = 1, binding = 0) buffer inputCubeVertices {
 	vec4 inputMeshVertices;
 };
 
 // The output buffer to populate with mesh output points.
-layout(set = 2, binding = 1) buffer outputCubeVertices {
+layout(set = 1, binding = 1) buffer outputCubeVertices {
 	vec4 data[8];
 } outputMeshVertices;
-
-
-
-
-
 
 // The actual computation.
 void main() {
 
-	// Retrieve and index the current thread to find which vertex to compute.
 	int current_invocation_id = int(gl_GlobalInvocationID.x);
-	int curve_index = current_invocation_id / N_VERTICES_PER_SINE;
-
-	// Do nothing if there is no corresponding vertex to compute.
-	if (curve_index > 1) {
+	if (current_invocation_id > 8) {
 		return;
 	}
-
-	// Compute the vertex position; x varies with the count.
-	float x_normalized = float(current_invocation_id % N_VERTICES_PER_SINE) 
-		/ float(N_VERTICES_PER_SINE - 1);
-	float x = x_normalized * 3.14152965 * 2.0;
 	
-	// Compute the vertex position; y varies with time.
-	// Z layers by sine pair.
-	float result_y;
-	float result_z;
-	if (curve_index == 0) {
-		result_y = sin(mod(time + offsets[0] + x, 3.14152965 * 2.0));
-		result_z = float(2 * pc.n_sine_pair) / float(N_SINE_PAIRS * 2);
-	} else {
-		result_y = sin(time + offsets[1] + x);
-		result_z = float(1 + 2 * pc.n_sine_pair) / float(N_SINE_PAIRS * 2);
-	}
-
-	// Update the output position of this point.
-	outputVertices.data[current_invocation_id] = 
-		vec4((2.0 * x_normalized - 1.0), result_y, result_z, 1.0);
+	outputMeshVertices.data[current_invocation_id] = inputMeshVertices;
 }
