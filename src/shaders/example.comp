@@ -1,45 +1,48 @@
 #version 310 es
+// Compute shader:
+// Takes in a time value, time offset values, and a number of vertices.
+// Populates a buffer of output vertices to complete the sine waves.
 
-layout(local_size_x = N_VERTICES_PER_SINE, local_size_y = 1, local_size_z = 1) in;
+layout(local_size_x = 11) in;
 
-layout(std140, set = 0, binding = 0) readonly restrict buffer dataOffsetBlock {
-	vec2 offsets;
+// A uniform value representing the time.
+layout(set = 0, binding = 0) uniform timeUniform { float time; };
+
+// The input cube vertices.
+layout(set = 1, binding = 0) buffer inputCubeVertices {
+  vec4 inputMeshVertices[11];
 };
 
-layout(std140, set = 0, binding = 1) restrict writeonly buffer sineSB {
-	vec4 data[N_VERTICES_PER_SINE * 2];
-} result_vertex_sine;
+// The output buffer to populate with mesh output points.
+layout(set = 1, binding = 1) buffer outputCubeVertices {
+  vec4 data[11];
+} outputMeshVertices;
 
-layout(std140, set = 1, binding = 0) uniform propsBlock {
-	float t;
-};
-
-layout (push_constant) uniform pushConstants {
-	int n_sine_pair;
-} pc;
-	
+// The actual computation.
 void main() {
+  int current_invocation_id = int(gl_GlobalInvocationID.x);
+  if (current_invocation_id > 10) {
+    return;
+  }
 
-	int current_invocation_id = int(gl_GlobalInvocationID.x);
-	int curve_index = current_invocation_id / N_VERTICES_PER_SINE;
-	float result_y;
-	float result_z;
-	float x_normalized = float(current_invocation_id % N_VERTICES_PER_SINE) 
-		/ float(N_VERTICES_PER_SINE - 1);
-	float x = x_normalized * 3.14152965 * 2.0;
+  vec4 inputPosition = inputMeshVertices[current_invocation_id];
+  // if (current_invocation_id == 0) {
+  //      outputMeshVertices.data[current_invocation_id] = vec4(0, 0, 1, 1);
+  //} else if (current_invocation_id == 1) {
+  //      outputMeshVertices.data[current_invocation_id] = vec4(0.5, 0, 1, 1);
+  //} else if (current_invocation_id == 2) {
+  //      outputMeshVertices.data[current_invocation_id] = vec4(0.5, 0.5, 1, 1);
+  //} else if (current_invocation_id == 3) {
+  //      outputMeshVertices.data[current_invocation_id] = vec4(0, 0.5, 1, 1);
+  //} else if (current_invocation_id == 4) {
+  //      outputMeshVertices.data[current_invocation_id] = vec4(0.5, 0, 1, 1);
+  //} else if (current_invocation_id == 5) {
+  //      outputMeshVertices.data[current_invocation_id] = vec4(0.5, 0.5, 1, 1);
+  //} else if (current_invocation_id == 6) {
+  //      outputMeshVertices.data[current_invocation_id] = vec4(0, 0, 1, 1);
+  //} else if (current_invocation_id == 7) {
+  //      outputMeshVertices.data[current_invocation_id] = vec4(0, 0.5, 1, 1);
+  //}
 
-	if (curve_index > 1) {
-		return;
-	}
-	
-	if (curve_index == 0) {
-		result_y = sin(mod(t + offsets[0] + x, 3.14152965 * 2.0) );
-		result_z = float(2 * pc.n_sine_pair) / float(N_SINE_PAIRS * 2);
-	} else {
-		result_y = sin(t + offsets[1] + x);
-		result_z = float(1 + 2 * pc.n_sine_pair) / float(N_SINE_PAIRS * 2);
-	}
-
-	result_vertex_sine.data[current_invocation_id] = 
-		vec4((2.0 * x_normalized - 1.0), result_y, result_z, 1.0);
+  outputMeshVertices.data[current_invocation_id] = inputPosition;
 }

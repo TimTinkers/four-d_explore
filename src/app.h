@@ -64,10 +64,6 @@ class App {
   std::shared_ptr<Anvil::Buffer> comp_data_buffer_ptr_;
   void init_buffers();
   const unsigned char* get_mesh_data() const;
-  void get_buffer_memory_offsets(uint32_t  n_sine_pair,
-	  uint32_t* out_opt_sine1SB_offset_ptr,
-	  uint32_t* out_opt_sine2SB_offset_ptr,
-	  uint32_t* out_opt_offset_data_offset_ptr = nullptr);
 
   // Descriptor set group initialization with helpers.
   std::shared_ptr<Anvil::DescriptorSetGroup> dsg_ptr_;
@@ -97,14 +93,14 @@ class App {
 
   // Frame buffer initialization with helpers.
   std::shared_ptr<Anvil::Framebuffer> fbos_[N_SWAPCHAIN_IMAGES];
-  std::shared_ptr<Anvil::Image> m_depth_images[N_SWAPCHAIN_IMAGES];
-  std::shared_ptr<Anvil::ImageView> m_depth_image_views[N_SWAPCHAIN_IMAGES];
+  std::shared_ptr<Anvil::ImageView> depth_image_views_[N_SWAPCHAIN_IMAGES];
   void init_framebuffers();
 
   // Graphics pipeline initialization and helpers.
   std::shared_ptr<Anvil::RenderPass> renderpass_ptr_;
   Anvil::GraphicsPipelineID pipeline_id_;
   void init_gfx_pipelines();
+  std::shared_ptr<Anvil::Image> depth_images_[N_SWAPCHAIN_IMAGES];
 
   // Command buffer initialization and helpers.
   std::shared_ptr<Anvil::PrimaryCommandBuffer>
@@ -126,6 +122,21 @@ class App {
   // Input.
   void init_camera();
   void handle_keys();
+
+  // NEW: Cube.
+  // Create a pointer to a buffer for storing the output cube vertices.
+  VkDeviceSize outputCubeVerticesBufferSize_;
+  std::vector<VkDeviceSize> outputCubeVerticesBufferSizes_;
+  std::shared_ptr<Anvil::Buffer> outputCubeVerticesBufferPointer_;
+
+  // Create a pointer to a buffer for sending input cube vertices to the compute
+  // shader buffer.
+  VkDeviceSize totalInputCubeBufferSize_;
+  std::vector<VkDeviceSize> inputCubeElementOffsets_;
+  std::shared_ptr<Anvil::Buffer> inputCubeBufferPointer_;
+
+  VkDeviceSize timeUniformSizePerSwapchain;
+  std::shared_ptr<Anvil::Buffer> timeUniformPointer;
 
   VkSurfaceKHR surface_;
 
