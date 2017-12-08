@@ -46,72 +46,72 @@ void Camera::UpdateProj() {
 
 void Camera::RotateUp(float amount) {
   mat5 rot = mat5::rotate(1, 3, amount);
-  rot_matrix_ = rot_matrix_ * rot;
+  rot_matrix_ = rot * rot_matrix_;
 }
 
 void Camera::RotateDown(float amount) {
   mat5 rot = mat5::rotate(1, 3, -amount);
-  rot_matrix_ = rot_matrix_ * rot;
+  rot_matrix_ = rot * rot_matrix_;
 }
 
 void Camera::RotateRight(float amount) {
   mat5 rot = mat5::rotate(0, 3, amount);
-  rot_matrix_ = rot_matrix_ * rot;
+  rot_matrix_ = rot * rot_matrix_;
 }
 
 void Camera::RotateLeft(float amount) {
   mat5 rot = mat5::rotate(0, 3, -amount);
-  rot_matrix_ = rot_matrix_ * rot;
+  rot_matrix_ = rot * rot_matrix_;
 }
 
 void Camera::RotateAna(float amount) {
   mat5 rot = mat5::rotate(2, 3, amount);
-  rot_matrix_ = rot_matrix_ * rot;
+  rot_matrix_ = rot * rot_matrix_;
 }
 
 void Camera::RotateKata(float amount) {
   mat5 rot = mat5::rotate(2, 3, -amount);
-  rot_matrix_ = rot_matrix_ * rot;
+  rot_matrix_ = rot * rot_matrix_;
 }
 
 void Camera::MoveForward(float amount) {
   mat5 trans = mat5::translate(3, amount);
-  trans_matrix_ = trans_matrix_ * trans;
+  trans_matrix_ = trans * trans_matrix_;
 }
 
 void Camera::MoveBackward(float amount) {
   mat5 trans = mat5::translate(3, -amount);
-  trans_matrix_ = trans_matrix_ * trans;
+  trans_matrix_ = trans * trans_matrix_;
 }
 
 void Camera::MoveRight(float amount) {
   mat5 trans = mat5::translate(0, amount);
-  trans_matrix_ = trans_matrix_ * trans;
+  trans_matrix_ = trans * trans_matrix_;
 }
 
 void Camera::MoveLeft(float amount) {
   mat5 trans = mat5::translate(0, -amount);
-  trans_matrix_ = trans_matrix_ * trans;
+  trans_matrix_ = trans * trans_matrix_;
 }
 
 void Camera::MoveUp(float amount) {
   mat5 trans = mat5::translate(1, amount);
-  trans_matrix_ = trans_matrix_ * trans;
+  trans_matrix_ = trans * trans_matrix_;
 }
 
 void Camera::MoveDown(float amount) {
   mat5 trans = mat5::translate(1, -amount);
-  trans_matrix_ = trans_matrix_ * trans;
+  trans_matrix_ = trans * trans_matrix_;
 }
 
 void Camera::MoveAna(float amount) {
   mat5 trans = mat5::translate(2, amount);
-  trans_matrix_ = trans_matrix_ * trans;
+  trans_matrix_ = trans * trans_matrix_;
 }
 
 void Camera::MoveKata(float amount) {
   mat5 trans = mat5::translate(2, -amount);
-  trans_matrix_ = trans_matrix_ * trans;
+  trans_matrix_ = trans * trans_matrix_;
 }
 
 mat5 Camera::GetViewProj() {
