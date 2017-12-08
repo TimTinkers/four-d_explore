@@ -39,8 +39,8 @@ void main() {
   float w = dot(viewProj.row, vec4(1.0, 1.0, 1.0, 1.0)) + viewProj.ww;
 
   outputPosition = outputPosition / vec4(w);
-  outputPosition.z = outputPosition.w;
-  outputPosition.w = 1.0;
+  //outputPosition.wz = outputPosition.zw;
+  //outputPosition.w = 1.0;
   //if (outputPosition.z < 0.0) outputPosition.z *= -1.0;
 
   outputMeshVertices.data[current_invocation_id] = outputPosition;

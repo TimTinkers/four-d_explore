@@ -3,6 +3,8 @@
 
 #include "matrix.h"
 
+#include <iostream>
+
 #include "glm/glm.hpp"
 
 class Camera {
@@ -44,7 +46,11 @@ class Camera {
   void MoveKata(float amount);
 
   mat5 getView() {
-    return view_matrix_;
+    std::cout << "trans:\n";
+    trans_matrix_.Print();
+    std::cout << "rot:\n";
+    rot_matrix_.Print();
+    return trans_matrix_ * rot_matrix_;
   }
   mat5 getProj() {
     return projection_matrix_;
@@ -52,7 +58,9 @@ class Camera {
   mat5 GetViewProj();
 
  private:
-  mat5 view_matrix_;
+  mat5 trans_matrix_;
+  mat5 rot_matrix_;
+  //mat5 view_matrix_;
   mat5 projection_matrix_;
 
   glm::vec4 eye_;

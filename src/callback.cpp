@@ -10,10 +10,11 @@ Callback* Callback::GetInstance() {
   return &instance;
 }
 
-void Callback::init(App* app, Camera* camera) {
+void Callback::init(App* app, Camera* camera, GLFWwindow* window) {
   app_ = app;
   camera_ = camera;
   scroll_pos_ = 0;
+  glfwGetCursorPos(window, &last_x_pos_, &last_y_pos_);
 }
 
 double Callback::get_scroll_pos() {
@@ -53,7 +54,8 @@ void Callback::on_mouse_button_event_impl(GLFWwindow* window, int button,
 
 void Callback::on_mouse_move_event_impl(GLFWwindow* window, double xPos,
                                         double yPos) {
-  //std::cout << "MPos : (" << xPos << ", " << yPos << ")\n";
+  std::cout << "MPos : (" << xPos << ", " << yPos << ")\n";
+  std::cout << "(" << last_x_pos_ << ", " << last_y_pos_ << ")\n";
   if (xPos < last_x_pos_) {
     camera_->RotateLeft(MOUSE_SCALE * (last_x_pos_ - xPos));
   } else if (xPos > last_x_pos_) {

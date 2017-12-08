@@ -920,13 +920,13 @@ void App::init_camera() {
   //    std::bind(&App::on_keypress_event, this, std::placeholders::_1,
   //              std::placeholders::_2, std::placeholders::_3,
   //              std::placeholders::_4, std::placeholders::_5));
-  Callback::GetInstance()->init(this, &camera_);
+  Callback::GetInstance()->init(this, &camera_, GetGLFWWindow());
   glfwSetKeyCallback(GetGLFWWindow(), Callback::on_keypress_event);
   glfwSetMouseButtonCallback(GetGLFWWindow(), Callback::on_mouse_button_event);
   glfwSetCursorPosCallback(GetGLFWWindow(), Callback::on_mouse_move_event);
   glfwSetScrollCallback(GetGLFWWindow(), Callback::on_mouse_scroll_event);
 
-  //glfwSetInputMode(GetGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  glfwSetInputMode(GetGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
 void App::handle_keys() {
@@ -975,8 +975,11 @@ void App::handle_keys() {
   glm::mat4 tran = glm::translate(glm::mat4(1), glm::vec3(1,2,3));
   glm::mat4 t2 = view4 * tran;
   glm::mat4 t3 = glm::translate(view4, glm::vec3(1,2,3));
-  //view5.Print();
-  //proj5.Print();
+  std::cout << "view:\n";
+  view5.Print();
+  std::cout << "proj:\n";
+  proj5.Print();
+  std::cout << "viewproj:\n";
   camera_.GetViewProj().Print();
 }
 

@@ -12,7 +12,7 @@ class Callback {
  public:
   static Callback* GetInstance();
 
-  void init(App* app, Camera* camera);
+  void init(App* app, Camera* camera, GLFWwindow* window);
 
   const std::unordered_set<int>* get_keys() { return &keys_; }
 
