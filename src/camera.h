@@ -43,6 +43,12 @@ class Camera {
   void MoveAna(float amount);
   void MoveKata(float amount);
 
+  mat5 getView() {
+    return view_matrix_;
+  }
+  mat5 getProj() {
+    return projection_matrix_;
+  }
   mat5 GetViewProj();
 
  private:

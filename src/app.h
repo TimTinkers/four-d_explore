@@ -42,15 +42,6 @@ class App {
   VkDeviceSize ub_data_size_per_swapchain_image_;
   VkDeviceSize comp_per_swap_;
 
-  // Sine data.
-  std::shared_ptr<Anvil::Buffer> m_sine_color_buffer_ptr;        /* N_SINE_PAIRS * 2 * vec2; data stored as R8G8_UNORM */
-  VkDeviceSize                   m_sine_color_buffer_size;
-  std::shared_ptr<Anvil::Buffer> m_sine_data_buffer_ptr;
-  std::vector<VkDeviceSize>      m_sine_data_buffer_offsets;
-  VkDeviceSize                   m_sine_data_buffer_size;
-  std::shared_ptr<Anvil::Buffer> m_sine_props_data_buffer_ptr;
-  VkDeviceSize                   m_sine_props_data_buffer_size_per_swapchain_image;
-
   Camera camera_;
 
   // Boilerplate initialization.
@@ -68,9 +59,6 @@ class App {
   // Descriptor set group initialization with helpers.
   std::shared_ptr<Anvil::DescriptorSetGroup> dsg_ptr_;
   std::shared_ptr<Anvil::DescriptorSetGroup> compute_dsg_ptr_;
-  std::shared_ptr<Anvil::Buffer> m_sine_offset_data_buffer_ptr;
-  std::vector<VkDeviceSize> m_sine_offset_data_buffer_offsets;
-  VkDeviceSize m_sine_offset_data_buffer_size;
   void init_dsgs();
 
   // Image initialization.
@@ -105,8 +93,6 @@ class App {
   // Command buffer initialization and helpers.
   std::shared_ptr<Anvil::PrimaryCommandBuffer>
       command_buffers_[N_SWAPCHAIN_IMAGES];
-  void get_luminance_data(std::shared_ptr<float>* out_result_ptr,
-                          uint32_t* out_result_size_ptr) const;
   void init_command_buffers();
 
   // Frame validation.
@@ -116,7 +102,6 @@ class App {
                                          const char* message, void* user_arg);
 
   // Frame rendering.
-  void update_data_ub_contents(uint32_t in_n_swapchain_image);
   static void draw_frame(void* app_raw_ptr);
 
   // Input.
@@ -137,6 +122,9 @@ class App {
 
   VkDeviceSize timeUniformSizePerSwapchain;
   std::shared_ptr<Anvil::Buffer> timeUniformPointer;
+
+  VkDeviceSize mat5UniformSizePerSwapchain;
+  std::shared_ptr<Anvil::Buffer> viewProjUniformPointer;
 
   VkSurfaceKHR surface_;
 

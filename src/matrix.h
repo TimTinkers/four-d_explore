@@ -10,6 +10,8 @@
 
 #include "glm/glm.hpp"
 
+#include "wrappers/buffer.h"
+
 class mat5;
 
 glm::vec4 cross4(glm::vec4 U, glm::vec4 V, glm::vec4 W);
@@ -17,8 +19,11 @@ glm::vec4 cross4(glm::vec4 U, glm::vec4 V, glm::vec4 W);
 class vec5 {
  public:
   vec5();
+  vec5(float a, float b, float c, float d, float e);
 
   friend class mat5;
+
+  void Print();
 
  private:
   glm::vec4 vec;
@@ -47,6 +52,18 @@ class mat5 {
 
   void Print() const;
 
+  const glm::mat4& get_main_mat() const {
+    return main_mat;
+  }
+  const glm::vec4& get_column() const {
+    return column;
+  }
+  const glm::vec4& get_row() const {
+    return row;
+  }
+  const float& get_ww() const {
+    return ww;
+  }
  private:
   glm::mat4 main_mat;
   glm::vec4 column;

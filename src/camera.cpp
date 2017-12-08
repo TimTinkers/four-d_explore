@@ -3,7 +3,7 @@
 #include "matrix.h"
 
 Camera::Camera()
-    : eye_(0, 0, 0, -1),
+    : eye_(0, 0, 0, -5),
       look_(0, 0, 0, 0),
       up_(0, 1, 0, 0),
       right_(1, 0, 0, 0),
@@ -42,79 +42,75 @@ void Camera::UpdateProj() {
 
 void Camera::RotateUp(float amount) {
   mat5 rot = mat5::rotate(1, 3, amount);
-  view_matrix_ = rot * view_matrix_;
+  view_matrix_ = view_matrix_ * rot;
 }
 
 void Camera::RotateDown(float amount) {
   mat5 rot = mat5::rotate(1, 3, -amount);
-  view_matrix_ = rot * view_matrix_;
+  view_matrix_ = view_matrix_ * rot;
 }
 
 void Camera::RotateRight(float amount) {
   mat5 rot = mat5::rotate(0, 3, amount);
-  view_matrix_ = rot * view_matrix_;
+  view_matrix_ = view_matrix_ * rot;
 }
 
 void Camera::RotateLeft(float amount) {
   mat5 rot = mat5::rotate(0, 3, -amount);
-  view_matrix_ = rot * view_matrix_;
+  view_matrix_ = view_matrix_ * rot;
 }
 
 void Camera::RotateAna(float amount) {
   mat5 rot = mat5::rotate(2, 3, amount);
-  view_matrix_ = rot * view_matrix_;
+  view_matrix_ = view_matrix_ * rot;
 }
 
 void Camera::RotateKata(float amount) {
   mat5 rot = mat5::rotate(2, 3, -amount);
-  view_matrix_ = rot * view_matrix_;
+  view_matrix_ = view_matrix_ * rot;
 }
 
 void Camera::MoveForward(float amount) {
-  //std::cout << "FORWARD\n";
-  //view_matrix_.Print();
-  mat5 trans = mat5::translate(1, amount);
-  //trans.Print();
-  view_matrix_ = trans * view_matrix_;
-  //view_matrix_.Print();
-  //std::cout << "END FORWARD\n\n\n";
+  mat5 trans = mat5::translate(3, amount);
+  view_matrix_ = view_matrix_ * trans;
+  return;
 }
 
 void Camera::MoveBackward(float amount) {
-  mat5 trans = mat5::translate(1, -amount);
-  view_matrix_ = trans * view_matrix_;
+  mat5 trans = mat5::translate(3, -amount);
+  view_matrix_ = view_matrix_ * trans;
 }
 
 void Camera::MoveRight(float amount) {
   mat5 trans = mat5::translate(0, amount);
-  view_matrix_ = trans * view_matrix_;
+  view_matrix_ = view_matrix_ * trans;
 }
 
 void Camera::MoveLeft(float amount) {
   mat5 trans = mat5::translate(0, -amount);
-  view_matrix_ = trans * view_matrix_;
+  view_matrix_ = view_matrix_ * trans;
 }
 
 void Camera::MoveUp(float amount) {
-  mat5 trans = mat5::translate(3, amount);
-  view_matrix_ = trans * view_matrix_;
+  mat5 trans = mat5::translate(1, amount);
+  view_matrix_ = view_matrix_ * trans;
 }
 
 void Camera::MoveDown(float amount) {
-  mat5 trans = mat5::translate(3, -amount);
-  view_matrix_ = trans * view_matrix_;
+  mat5 trans = mat5::translate(1, -amount);
+  view_matrix_ = view_matrix_ * trans;
 }
 
 void Camera::MoveAna(float amount) {
   mat5 trans = mat5::translate(2, amount);
-  view_matrix_ = trans * view_matrix_;
+  view_matrix_ = view_matrix_ * trans;
 }
 
 void Camera::MoveKata(float amount) {
   mat5 trans = mat5::translate(2, -amount);
-  view_matrix_ = trans * view_matrix_;
+  view_matrix_ = view_matrix_ * trans;
 }
 
 mat5 Camera::GetViewProj() {
-  return view_matrix_ * projection_matrix_;
+  return projection_matrix_ * view_matrix_;
 }

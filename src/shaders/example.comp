@@ -3,46 +3,45 @@
 // Takes in a time value, time offset values, and a number of vertices.
 // Populates a buffer of output vertices to complete the sine waves.
 
-layout(local_size_x = 11) in;
+layout(local_size_x = N_VERTICES) in;
 
 // A uniform value representing the time.
-layout(set = 0, binding = 0) uniform timeUniform { float time; };
+//layout(set = 0, binding = 0) uniform timeUniform { float time; };
+
+layout(set = 0, binding = 0) uniform viewProjUniform {
+  mat4 main_mat;
+  vec4 column;
+  vec4 row;
+  float ww;
+} viewProj;
 
 // The input cube vertices.
 layout(set = 1, binding = 0) buffer inputCubeVertices {
-  vec4 inputMeshVertices[11];
+  vec4 inputMeshVertices[N_VERTICES];
 };
 
 // The output buffer to populate with mesh output points.
 layout(set = 1, binding = 1) buffer outputCubeVertices {
-  vec4 data[11];
+  vec4 data[N_VERTICES];
 } outputMeshVertices;
+
 
 // The actual computation.
 void main() {
   int current_invocation_id = int(gl_GlobalInvocationID.x);
-  if (current_invocation_id > 10) {
+  if (current_invocation_id >= N_VERTICES) {
     return;
   }
 
+  // This assumes that inputMeshVertices only contains points, no directions
   vec4 inputPosition = inputMeshVertices[current_invocation_id];
-  // if (current_invocation_id == 0) {
-  //      outputMeshVertices.data[current_invocation_id] = vec4(0, 0, 1, 1);
-  //} else if (current_invocation_id == 1) {
-  //      outputMeshVertices.data[current_invocation_id] = vec4(0.5, 0, 1, 1);
-  //} else if (current_invocation_id == 2) {
-  //      outputMeshVertices.data[current_invocation_id] = vec4(0.5, 0.5, 1, 1);
-  //} else if (current_invocation_id == 3) {
-  //      outputMeshVertices.data[current_invocation_id] = vec4(0, 0.5, 1, 1);
-  //} else if (current_invocation_id == 4) {
-  //      outputMeshVertices.data[current_invocation_id] = vec4(0.5, 0, 1, 1);
-  //} else if (current_invocation_id == 5) {
-  //      outputMeshVertices.data[current_invocation_id] = vec4(0.5, 0.5, 1, 1);
-  //} else if (current_invocation_id == 6) {
-  //      outputMeshVertices.data[current_invocation_id] = vec4(0, 0, 1, 1);
-  //} else if (current_invocation_id == 7) {
-  //      outputMeshVertices.data[current_invocation_id] = vec4(0, 0.5, 1, 1);
-  //}
+  vec4 outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
+  float w = dot(viewProj.row, vec4(1.0, 1.0, 1.0, 1.0)) + viewProj.ww;
 
-  outputMeshVertices.data[current_invocation_id] = inputPosition;
+  outputPosition = outputPosition / vec4(w);
+  outputPosition.z = outputPosition.w;
+  outputPosition.w = 1.0;
+  //if (outputPosition.z < 0.0) outputPosition.z *= -1.0;
+
+  outputMeshVertices.data[current_invocation_id] = outputPosition;
 }

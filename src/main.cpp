@@ -27,8 +27,8 @@ int main() {
   std::vector<Tetrahedron> tets = b.GetTets();
   std::cout << tets.size() << "\n";
 
-  mat5::perspective(30, 0.75, 0.75, 1, 20).Print();
-  mat5::lookAt(glm::vec4(0,0,0,-1), glm::vec4(0,0,0,0), glm::vec4(0,1,0,0), glm::vec4(1,0,0,0)).Print();
+  //mat5::perspective(30, 0.75, 0.75, 1, 20).Print();
+  //mat5::lookAt(glm::vec4(0,0,0,-1), glm::vec4(0,0,0,0), glm::vec4(0,1,0,0), glm::vec4(1,0,0,0)).Print();
 
   std::shared_ptr<App> app_ptr(new App());
   app_ptr->init();
