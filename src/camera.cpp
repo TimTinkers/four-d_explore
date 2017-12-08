@@ -77,7 +77,6 @@ void Camera::RotateKata(float amount) {
 void Camera::MoveForward(float amount) {
   mat5 trans = mat5::translate(3, amount);
   trans_matrix_ = trans_matrix_ * trans;
-  return;
 }
 
 void Camera::MoveBackward(float amount) {
@@ -116,5 +115,5 @@ void Camera::MoveKata(float amount) {
 }
 
 mat5 Camera::GetViewProj() {
-  return projection_matrix_ * trans_matrix_ * rot_matrix_;
+  return projection_matrix_ * rot_matrix_ * trans_matrix_;
 }

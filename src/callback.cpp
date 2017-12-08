@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#define MOUSE_SCALE 0.005
+#define MOUSE_SCALE 0.001
 #define SCROLL_SCALE 0.1
 
 Callback* Callback::GetInstance() {

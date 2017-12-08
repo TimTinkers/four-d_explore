@@ -50,7 +50,7 @@ class Camera {
     trans_matrix_.Print();
     std::cout << "rot:\n";
     rot_matrix_.Print();
-    return trans_matrix_ * rot_matrix_;
+    return rot_matrix_ * trans_matrix_;
   }
   mat5 getProj() {
     return projection_matrix_;
