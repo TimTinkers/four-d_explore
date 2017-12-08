@@ -41,6 +41,7 @@
 #include "callback.h"
 
 #include "glm/gtc/matrix_transform.hpp"
+#include "shapes.h"
 
 #ifdef _WIN32
 #define GLFW_EXPOSE_NATIVE_WIN32
@@ -59,7 +60,10 @@
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
 #define DEBUG_REREAD false
-#define N_VERTICES 24
+
+// Prepare the actual values of input mesh data.
+std::vector<glm::vec4> MESH_DATA = TESSERACT;
+#define N_VERTICES MESH_DATA.size()
 
 /*
 Create the app and assign default values to several field variables.
@@ -220,53 +224,6 @@ void App::init_buffers() {
   inputCubeBufferPointer_->set_name("Cube input vertices");
   memory_allocator_ptr->add_buffer(inputCubeBufferPointer_, 0);
 
-  // Prepare the actual values of input cube vertices.
-  /*std::vector<glm::vec4> vertexData = {
-      glm::vec4(0, 0, 1, 1),        glm::vec4(0, 0.5, 1, 1),
-      glm::vec4(0.5, 0.5, 1, 1),    glm::vec4(0.5, 0, 1, 1),
-      glm::vec4(0, 0, 1, 1),        glm::vec4(0.25, -0.25, 1, 1),
-      glm::vec4(0.75, -0.25, 1, 1), glm::vec4(0.75, .25, 1, 1),
-      glm::vec4(0.5, 0.5, 1, 1),    glm::vec4(0.5, 0, 1, 1),
-      glm::vec4(0.75, -0.25, 1, 1)};*/
-  std::vector<glm::vec4> vertexData =
-  {	
-	  glm::vec4(-0.5, -0.5, 0, -0.5),
-	  glm::vec4(-0.5, -0.5, 0,  0.5),
-
-	  glm::vec4(-0.5, -0.5, 0, 0.5),
-	  glm::vec4(-0.5,  0.5, 0, 0.5),
-
-	  glm::vec4(-0.5,  0.5, 0, 0.5),
-	  glm::vec4(-0.5,  0.5, 0, -0.5),
-
-	  glm::vec4(-0.5,  0.5, 0, -0.5),
-	  glm::vec4(-0.5, -0.5, 0, -0.5),
-
-	  glm::vec4(-0.5, -0.5, 0, -0.5),
-	  glm::vec4(0.5, -0.5, 0, -0.5),
-
-	  glm::vec4(-0.5,  0.5, 0, -0.5),
-	  glm::vec4(0.5,  0.5, 0, -0.5),
-
-	  glm::vec4(-0.5,  0.5, 0, 0.5),
-	  glm::vec4(0.5,  0.5, 0, 0.5),
-
-	  glm::vec4(-0.5, -0.5, 0,  0.5),
-	  glm::vec4(0.5, -0.5, 0,  0.5),
-
-	  glm::vec4(0.5, -0.5, 0,  0.5),
-	  glm::vec4(0.5,  0.5, 0, 0.5),
-
-	  glm::vec4(0.5,  0.5, 0, 0.5),
-	  glm::vec4(0.5,  0.5, 0, -0.5),
-
-	  glm::vec4(0.5,  0.5, 0, -0.5),
-	  glm::vec4(0.5, -0.5, 0, -0.5),
-
-	  glm::vec4(0.5, -0.5, 0, -0.5),
-	  glm::vec4(0.5, -0.5, 0,  0.5),
-  };
-
   std::unique_ptr<char> inputCubeBufferValues;
   inputCubeBufferValues.reset(
       new char[static_cast<uintptr_t>(totalInputCubeBufferSize_)]);
@@ -276,7 +233,7 @@ void App::init_buffers() {
                  inputCubeElementOffsets_[vertexIndex]);
 
     // Populate the component coordinates for each input vertex.
-    glm::vec4 vertex = vertexData[vertexIndex];
+    glm::vec4 vertex = MESH_DATA[vertexIndex];
     *cubeVertexDataPointer = vertex.x;
     cubeVertexDataPointer++;
     *cubeVertexDataPointer = vertex.y;

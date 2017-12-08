@@ -33,15 +33,11 @@ void main() {
     return;
   }
 
-  // This assumes that inputMeshVertices only contains points, no directions
+  // This assumes that inputMeshVertices only contains points, no directions.
   vec4 inputPosition = inputMeshVertices[current_invocation_id];
   vec4 outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
   float w = dot(viewProj.row, vec4(1.0, 1.0, 1.0, 1.0)) + viewProj.ww;
-
   outputPosition = outputPosition / vec4(w);
-  //outputPosition.wz = outputPosition.zw;
-  //outputPosition.w = 1.0;
-  //if (outputPosition.z < 0.0) outputPosition.z *= -1.0;
 
   outputMeshVertices.data[current_invocation_id] = outputPosition;
 }
