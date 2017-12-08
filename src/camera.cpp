@@ -10,8 +10,8 @@ Camera::Camera()
       fovy_(30),
       aspectX_(1.77),
       aspectW_(1),
-      zNear_(1),
-      zFar_(20) {}
+      zNear_(0.1),
+      zFar_(100) {}
 
 void Camera::SetEye(glm::vec4 eye) { eye_ = eye; }
 
