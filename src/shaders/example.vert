@@ -10,7 +10,5 @@ layout(set = 0, binding = 0) buffer cubeOutputVertices {
 void main() {
   vec4 vOut = vertex_out[gl_VertexIndex];
   fs_color = vec4(gl_VertexIndex / float(N_VERTICES), 0, 0, 1);
-  //fs_color = vertex_out[gl_VertexIndex];
-  //vec4 vOut = vec4(gl_VertexIndex / float(N_VERTICES), 0, 0, 1);
   gl_Position = vOut;
 }

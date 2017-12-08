@@ -22,4 +22,5 @@ float Perlin::octave(int x, int y, int z, int w) {
     float amplitude = pow(persistance, i);
     total += perlin(x * freq, y * freq, z * freq, w * freq) * amplitude;
   }
+  return total;
 }

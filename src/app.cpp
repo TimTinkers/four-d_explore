@@ -58,7 +58,7 @@
 #define APP_NAME "Four Dimensional Exploration"
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
-
+#define DEBUG_REREAD false
 #define N_VERTICES 24
 
 /*
@@ -195,7 +195,13 @@ void App::init_buffers() {
     // Store current data offset.
     anvil_assert((totalInputCubeBufferSize_ % sb_data_alignment_requirement) ==
                  0);
-    inputCubeElementOffsets_.push_back(totalInputCubeBufferSize_);
+
+	// Tim's platform has different offsets?
+#ifdef _WIN32
+	inputCubeElementOffsets_.push_back(totalInputCubeBufferSize_ / 2);
+#else
+	inputCubeElementOffsets_.push_back(totalInputCubeBufferSize_);
+#endif
 
     // Account for space necessary to hold a vec4 and any padding required to
     // meet the alignment requirement.
@@ -223,41 +229,42 @@ void App::init_buffers() {
       glm::vec4(0.5, 0.5, 1, 1),    glm::vec4(0.5, 0, 1, 1),
       glm::vec4(0.75, -0.25, 1, 1)};*/
   std::vector<glm::vec4> vertexData =
-  { glm::vec4(-0.5, -0.5, 0, -0.5),
-    glm::vec4(-0.5, -0.5, 0,  0.5),
+  {	
+	  glm::vec4(-0.5, -0.5, 0, -0.5),
+	  glm::vec4(-0.5, -0.5, 0,  0.5),
 
-    glm::vec4(-0.5, -0.5, 0, 0.5),
-    glm::vec4(-0.5,  0.5, 0, 0.5),
+	  glm::vec4(-0.5, -0.5, 0, 0.5),
+	  glm::vec4(-0.5,  0.5, 0, 0.5),
 
-    glm::vec4(-0.5,  0.5, 0, 0.5),
-    glm::vec4(-0.5,  0.5, 0, -0.5),
+	  glm::vec4(-0.5,  0.5, 0, 0.5),
+	  glm::vec4(-0.5,  0.5, 0, -0.5),
 
-    glm::vec4(-0.5,  0.5, 0, -0.5),
-    glm::vec4(-0.5, -0.5, 0, -0.5),
+	  glm::vec4(-0.5,  0.5, 0, -0.5),
+	  glm::vec4(-0.5, -0.5, 0, -0.5),
 
-    glm::vec4(-0.5, -0.5, 0, -0.5),
-    glm::vec4( 0.5, -0.5, 0, -0.5),
+	  glm::vec4(-0.5, -0.5, 0, -0.5),
+	  glm::vec4(0.5, -0.5, 0, -0.5),
 
-    glm::vec4(-0.5,  0.5, 0, -0.5),
-    glm::vec4( 0.5,  0.5, 0, -0.5),
+	  glm::vec4(-0.5,  0.5, 0, -0.5),
+	  glm::vec4(0.5,  0.5, 0, -0.5),
 
-    glm::vec4(-0.5,  0.5, 0, 0.5),
-    glm::vec4( 0.5,  0.5, 0, 0.5),
+	  glm::vec4(-0.5,  0.5, 0, 0.5),
+	  glm::vec4(0.5,  0.5, 0, 0.5),
 
-    glm::vec4(-0.5, -0.5, 0,  0.5),
-    glm::vec4( 0.5, -0.5, 0,  0.5),
+	  glm::vec4(-0.5, -0.5, 0,  0.5),
+	  glm::vec4(0.5, -0.5, 0,  0.5),
 
-    glm::vec4( 0.5, -0.5, 0,  0.5),
-    glm::vec4( 0.5,  0.5, 0, 0.5),
+	  glm::vec4(0.5, -0.5, 0,  0.5),
+	  glm::vec4(0.5,  0.5, 0, 0.5),
 
-    glm::vec4( 0.5,  0.5, 0, 0.5),
-    glm::vec4( 0.5,  0.5, 0, -0.5),
+	  glm::vec4(0.5,  0.5, 0, 0.5),
+	  glm::vec4(0.5,  0.5, 0, -0.5),
 
-    glm::vec4( 0.5,  0.5, 0, -0.5),
-    glm::vec4( 0.5, -0.5, 0, -0.5),
+	  glm::vec4(0.5,  0.5, 0, -0.5),
+	  glm::vec4(0.5, -0.5, 0, -0.5),
 
-    glm::vec4( 0.5, -0.5, 0, -0.5),
-    glm::vec4( 0.5, -0.5, 0,  0.5),
+	  glm::vec4(0.5, -0.5, 0, -0.5),
+	  glm::vec4(0.5, -0.5, 0,  0.5),
   };
 
   std::unique_ptr<char> inputCubeBufferValues;
@@ -283,13 +290,17 @@ void App::init_buffers() {
   // the compute shader:
   outputCubeVerticesBufferSize_ = 0;
   for (unsigned int vertexIndex = 0; vertexIndex < N_VERTICES; ++vertexIndex) {
-    // Store current offset and account for space necessary to hold the
-    // generated sine data.
-    outputCubeVerticesBufferSizes_.push_back(outputCubeVerticesBufferSize_);
+    // Store current offset and account for space necessary to hold it.
+	// Tim's platform has different offsets?
+#ifdef _WIN32
+	  outputCubeVerticesBufferSizes_.push_back(outputCubeVerticesBufferSize_ / 2);
+#else
+	  outputCubeVerticesBufferSizes_.push_back(outputCubeVerticesBufferSize_);
+#endif
+
     outputCubeVerticesBufferSize_ += (sizeof(float) * 4);
 
-    // Account for space necessary to hold a vec4 for each point on the sine
-    // wave
+    // Account for space necessary to hold a vec4 for each point
     // and any padding required to meet the alignment requirement.
     outputCubeVerticesBufferSize_ +=
         (sb_data_alignment_requirement -
@@ -495,27 +506,33 @@ void App::init_semaphores() {
 
 // Display the interesting output of the shaders!
 void App::init_shaders() {
-  std::stringstream buffer;
-  std::ifstream t;
 
-  t.open("../src/shaders/example.frag");
-  buffer << t.rdbuf();
-  t.close();
-  std::string frag = buffer.str();
-  
-  buffer.str(std::string());
+	// Read the compute shader from a separate file.
+	// If running on Windows, assume it's Tim's machine and resolve this hacky path garbage.
+#ifdef _WIN32
+	std::ifstream infileComp{ "E:\\Penn 17 - 18\\CIS 565\\four-d_explore\\src\\shaders\\example.comp" };
+#else
+	std::ifstream infileComp{ "../src/shaders/example.comp" };
+#endif
+	std::string compute{ std::istreambuf_iterator<char>(infileComp), std::istreambuf_iterator<char>() };
 
-  t.open("../src/shaders/example.vert");
-  buffer << t.rdbuf();
-  t.close();
-  std::string vert = buffer.str();
+	// Read the vertex shader from a separate file.
+	// If running on Windows, assume it's Tim's machine and resolve this hacky path garbage.
+#ifdef _WIN32
+	std::ifstream infileVertex{ "E:\\Penn 17 - 18\\CIS 565\\four-d_explore\\src\\shaders\\example.vert" };
+#else
+	std::ifstream infileVertex{ "../src/shaders/example.vert" };
+#endif
+	std::string vertex{ std::istreambuf_iterator<char>(infileVertex), std::istreambuf_iterator<char>() };
 
-  buffer.str(std::string());
-
-  t.open("../src/shaders/example.comp");
-  buffer << t.rdbuf();
-  t.close();
-  std::string compute = buffer.str();
+	// Read the fragment shader from a separate file.
+	// If running on Windows, assume it's Tim's machine and resolve this hacky path garbage.
+#ifdef _WIN32
+	std::ifstream infileFragment{ "E:\\Penn 17 - 18\\CIS 565\\four-d_explore\\src\\shaders\\example.frag" };
+#else
+	std::ifstream infileFragment{ "../src/shaders/example.frag" };
+#endif
+	std::string fragment{ std::istreambuf_iterator<char>(infileFragment), std::istreambuf_iterator<char>() };
 
   std::shared_ptr<Anvil::GLSLShaderToSPIRVGenerator> compute_shader_ptr;
   std::shared_ptr<Anvil::ShaderModule> compute_shader_module_ptr;
@@ -527,13 +544,13 @@ void App::init_shaders() {
 
   compute_shader_ptr = Anvil::GLSLShaderToSPIRVGenerator::create(
 	  device_ptr_, Anvil::GLSLShaderToSPIRVGenerator::MODE_USE_SPECIFIED_SOURCE,
-	  compute.c_str(), Anvil::SHADER_STAGE_COMPUTE);
+	  compute, Anvil::SHADER_STAGE_COMPUTE);
+  vertex_shader_ptr = Anvil::GLSLShaderToSPIRVGenerator::create(
+	  device_ptr_, Anvil::GLSLShaderToSPIRVGenerator::MODE_USE_SPECIFIED_SOURCE,
+	  vertex, Anvil::SHADER_STAGE_VERTEX);
   fragment_shader_ptr = Anvil::GLSLShaderToSPIRVGenerator::create(
       device_ptr_, Anvil::GLSLShaderToSPIRVGenerator::MODE_USE_SPECIFIED_SOURCE,
-      frag.c_str(), Anvil::SHADER_STAGE_FRAGMENT);
-  vertex_shader_ptr = Anvil::GLSLShaderToSPIRVGenerator::create(
-      device_ptr_, Anvil::GLSLShaderToSPIRVGenerator::MODE_USE_SPECIFIED_SOURCE,
-      vert.c_str(), Anvil::SHADER_STAGE_VERTEX);
+      fragment, Anvil::SHADER_STAGE_FRAGMENT);
 
   // compute_shader_ptr->add_definition_value_pair("N_TRIANGLES", N_TRIANGLES);
   // fragment_shader_ptr->add_definition_value_pair("N_TRIANGLES", N_TRIANGLES);
@@ -936,28 +953,28 @@ void App::handle_keys() {
     //std::cout << (char)key << " ";
     switch (key) {
       case 'w': case 'W':
-        camera_.MoveForward(0.1);
+        camera_.MoveForward(0.1f);
         break;
       case 's': case 'S':
-        camera_.MoveBackward(0.1);
+        camera_.MoveBackward(0.1f);
         break;
       case 'a': case 'A':
-        camera_.MoveLeft(0.1);
+        camera_.MoveLeft(0.1f);
         break;
       case 'd': case 'D':
-        camera_.MoveRight(0.1);
+        camera_.MoveRight(0.1f);
         break;
       case 'q': case 'Q':
-        camera_.MoveAna(0.1);
+        camera_.MoveAna(0.1f);
         break;
       case 'e': case 'E':
-        camera_.MoveKata(0.1);
+        camera_.MoveKata(0.1f);
         break;
       case 'r': case 'R':
-        camera_.MoveUp(0.1);
+        camera_.MoveUp(0.1f);
         break;
       case 'f': case 'F':
-        camera_.MoveDown(0.1);
+        camera_.MoveDown(0.1f);
         break;
     }
   }
@@ -1073,21 +1090,25 @@ void App::draw_frame(void* app_raw_ptr) {
 #endif
   
   // Read all data points back.
-  for(int i = 0; i < 1; ++i) {
-    glm::vec4 input, output;
-    app_ptr->inputCubeBufferPointer_->read( app_ptr->inputCubeElementOffsets_[i] + 0 * sizeof(float), sizeof(float), &input.x);
-    app_ptr->inputCubeBufferPointer_->read( app_ptr->inputCubeElementOffsets_[i] + 1 * sizeof(float), sizeof(float), &input.y);
-    app_ptr->inputCubeBufferPointer_->read( app_ptr->inputCubeElementOffsets_[i] + 2 * sizeof(float), sizeof(float), &input.z);
-    app_ptr->inputCubeBufferPointer_->read( app_ptr->inputCubeElementOffsets_[i] + 3 * sizeof(float), sizeof(float), &input.w);
-    app_ptr->outputCubeVerticesBufferPointer_->read( app_ptr->outputCubeVerticesBufferSizes_[i] + 0 * sizeof(float), sizeof(float), &output.x);
-    app_ptr->outputCubeVerticesBufferPointer_->read( app_ptr->outputCubeVerticesBufferSizes_[i] + 1 * sizeof(float), sizeof(float), &output.y);
-    app_ptr->outputCubeVerticesBufferPointer_->read( app_ptr->outputCubeVerticesBufferSizes_[i] + 2 * sizeof(float), sizeof(float), &output.z);
-    app_ptr->outputCubeVerticesBufferPointer_->read( app_ptr->outputCubeVerticesBufferSizes_[i] + 3 * sizeof(float), sizeof(float), &output.w);
+  if (DEBUG_REREAD) {
+	  for (int i = 0; i < N_VERTICES; ++i) {
+		  glm::vec4 input, output;
+		  app_ptr->inputCubeBufferPointer_->read(app_ptr->inputCubeElementOffsets_[i] + 0 * sizeof(float), sizeof(float), &input.x);
+		  app_ptr->inputCubeBufferPointer_->read(app_ptr->inputCubeElementOffsets_[i] + 1 * sizeof(float), sizeof(float), &input.y);
+		  app_ptr->inputCubeBufferPointer_->read(app_ptr->inputCubeElementOffsets_[i] + 2 * sizeof(float), sizeof(float), &input.z);
+		  app_ptr->inputCubeBufferPointer_->read(app_ptr->inputCubeElementOffsets_[i] + 3 * sizeof(float), sizeof(float), &input.w);
+		  app_ptr->outputCubeVerticesBufferPointer_->read(app_ptr->outputCubeVerticesBufferSizes_[i] + 0 * sizeof(float), sizeof(float), &output.x);
+		  app_ptr->outputCubeVerticesBufferPointer_->read(app_ptr->outputCubeVerticesBufferSizes_[i] + 1 * sizeof(float), sizeof(float), &output.y);
+		  app_ptr->outputCubeVerticesBufferPointer_->read(app_ptr->outputCubeVerticesBufferSizes_[i] + 2 * sizeof(float), sizeof(float), &output.z);
+		  app_ptr->outputCubeVerticesBufferPointer_->read(app_ptr->outputCubeVerticesBufferSizes_[i] + 3 * sizeof(float), sizeof(float), &output.w);
 
-    std::cout << "(" << input.x << ", " << input.y << ", " << input.z << ", "
-              << input.w << ")\n";
-    std::cout << "(" << output.x << ", " << output.y << ", " << output.z << ", "
-              << output.w << ")\n\n";
+		  std::cout << "i offset: " << app_ptr->inputCubeElementOffsets_[i] << "\n";
+		  std::cout << "o offset: " << app_ptr->outputCubeVerticesBufferSizes_[i] << "\n";
+		  std::cout << "i (" << input.x << ", " << input.y << ", " << input.z << ", "
+			  << input.w << ")\n";
+		  std::cout << "o (" << output.x << ", " << output.y << ", " << output.z << ", "
+			  << output.w << ")\n\n";
+	  }
   }
 }
 
