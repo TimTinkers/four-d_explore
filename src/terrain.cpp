@@ -1,13 +1,19 @@
+// Imports.
 #include "terrain.h"
-
 #include <algorithm>
-
 #include <math.h>
-
 #include "perlin.h"
 #include "tetrahedron.h"
 
-Terrain::Chunk::Chunk(glm::ivec4 c) : ref_(c) {
+/**
+ *	Initialize a block at the given integer coordinates.
+ */
+Terrain::Block::Block(glm::ivec4 c) 
+	: pos_(c) {
+}
+
+Terrain::Chunk::Chunk(glm::ivec4 c) 
+	: ref_(c) {
   for (int x = 0; x < CHUNK_SIZE; ++x) {
     for (int y = 0; y < CHUNK_SIZE; ++y) {
       for (int z = 0; z < CHUNK_SIZE; ++z) {
@@ -25,8 +31,6 @@ Terrain::Chunk::Chunk(glm::ivec4 c) : ref_(c) {
     }
   }
 }
-
-Terrain::Block::Block(glm::ivec4 c) : pos_(c) {}
 
 Terrain::Block* Terrain::Chunk::GetBlock(glm::ivec4 c) {
   if (blocks_.count(c) > 0) {
