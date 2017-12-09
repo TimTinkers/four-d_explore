@@ -65,9 +65,12 @@
 std::vector<glm::vec4> MESH_CENTERS = { 
 	glm::vec4(0, 0, 0, 0), glm::vec4(1, 0, 0, 0), glm::vec4(2, 0, 0, 0),
 	glm::vec4(0, 0, 0, 1), glm::vec4(1, 0, 0, 1), glm::vec4(2, 0, 0, 1),
-	glm::vec4(0, 0, 0, 2), glm::vec4(1, 0, 0, 2), glm::vec4(2, 0, 0, 2) };
+	glm::vec4(0, 0, 0, 2), glm::vec4(1, 0, 0, 2), glm::vec4(2, 0, 0, 2)
+};
 #define N_MESHES MESH_CENTERS.size()
-#define N_VERTICES 64
+
+// Set to 64 for wire mesh, 144 for closed figure.
+#define N_VERTICES 144
 
 /*
 Create the app and assign default values to several field variables.
@@ -654,7 +657,7 @@ void App::init_gfx_pipelines() {
                                         VK_VERTEX_INPUT_RATE_INSTANCE);
   gfx_manager_ptr->set_pipeline_dsg(pipeline_id_, dsg_ptr_);
   gfx_manager_ptr->set_input_assembly_properties(
-      pipeline_id_, VK_PRIMITIVE_TOPOLOGY_LINE_LIST);
+      pipeline_id_, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
   gfx_manager_ptr->set_rasterization_properties(
       pipeline_id_, VK_POLYGON_MODE_FILL, VK_CULL_MODE_NONE,
       VK_FRONT_FACE_COUNTER_CLOCKWISE, 10.0f /* line_width */);
