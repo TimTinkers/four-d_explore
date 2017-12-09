@@ -274,8 +274,8 @@ void App::init_buffers() {
         (sb_data_alignment_requirement -
          outputCubeVerticesBufferSize_ % sb_data_alignment_requirement) %
         sb_data_alignment_requirement;
-    anvil_assert(outputCubeVerticesBufferSize_ % sb_data_alignment_requirement ==
-                 0);
+    anvil_assert(
+        outputCubeVerticesBufferSize_ % sb_data_alignment_requirement == 0);
   }
 
   // Allocate the memory for the buffer of output vertices.
@@ -474,33 +474,41 @@ void App::init_semaphores() {
 
 // Display the interesting output of the shaders!
 void App::init_shaders() {
-
-	// Read the compute shader from a separate file.
-	// If running on Windows, assume it's Tim's machine and resolve this hacky path garbage.
+// Read the compute shader from a separate file.
+// If running on Windows, assume it's Tim's machine and resolve this hacky path
+// garbage.
 #ifdef _WIN32
-	std::ifstream infileComp{ "E:\\Penn 17 - 18\\CIS 565\\four-d_explore\\src\\shaders\\example.comp" };
+  std::ifstream infileComp{
+      "E:\\Penn 17 - 18\\CIS 565\\four-d_explore\\src\\shaders\\example.comp"};
 #else
-	std::ifstream infileComp{ "../src/shaders/example.comp" };
+  std::ifstream infileComp{"../src/shaders/example.comp"};
 #endif
-	std::string compute{ std::istreambuf_iterator<char>(infileComp), std::istreambuf_iterator<char>() };
+  std::string compute{std::istreambuf_iterator<char>(infileComp),
+                      std::istreambuf_iterator<char>()};
 
-	// Read the vertex shader from a separate file.
-	// If running on Windows, assume it's Tim's machine and resolve this hacky path garbage.
+// Read the vertex shader from a separate file.
+// If running on Windows, assume it's Tim's machine and resolve this hacky path
+// garbage.
 #ifdef _WIN32
-	std::ifstream infileVertex{ "E:\\Penn 17 - 18\\CIS 565\\four-d_explore\\src\\shaders\\example.vert" };
+  std::ifstream infileVertex{
+      "E:\\Penn 17 - 18\\CIS 565\\four-d_explore\\src\\shaders\\example.vert"};
 #else
-	std::ifstream infileVertex{ "../src/shaders/example.vert" };
+  std::ifstream infileVertex{"../src/shaders/example.vert"};
 #endif
-	std::string vertex{ std::istreambuf_iterator<char>(infileVertex), std::istreambuf_iterator<char>() };
+  std::string vertex{std::istreambuf_iterator<char>(infileVertex),
+                     std::istreambuf_iterator<char>()};
 
-	// Read the fragment shader from a separate file.
-	// If running on Windows, assume it's Tim's machine and resolve this hacky path garbage.
+// Read the fragment shader from a separate file.
+// If running on Windows, assume it's Tim's machine and resolve this hacky path
+// garbage.
 #ifdef _WIN32
-	std::ifstream infileFragment{ "E:\\Penn 17 - 18\\CIS 565\\four-d_explore\\src\\shaders\\example.frag" };
+  std::ifstream infileFragment{
+      "E:\\Penn 17 - 18\\CIS 565\\four-d_explore\\src\\shaders\\example.frag"};
 #else
-	std::ifstream infileFragment{ "../src/shaders/example.frag" };
+  std::ifstream infileFragment{"../src/shaders/example.frag"};
 #endif
-	std::string fragment{ std::istreambuf_iterator<char>(infileFragment), std::istreambuf_iterator<char>() };
+  std::string fragment{std::istreambuf_iterator<char>(infileFragment),
+                       std::istreambuf_iterator<char>()};
 
   std::shared_ptr<Anvil::GLSLShaderToSPIRVGenerator> compute_shader_ptr;
   std::shared_ptr<Anvil::ShaderModule> compute_shader_module_ptr;
@@ -510,11 +518,11 @@ void App::init_shaders() {
   std::shared_ptr<Anvil::ShaderModule> vertex_shader_module_ptr;
 
   compute_shader_ptr = Anvil::GLSLShaderToSPIRVGenerator::create(
-	  device_ptr_, Anvil::GLSLShaderToSPIRVGenerator::MODE_USE_SPECIFIED_SOURCE,
-	  compute, Anvil::SHADER_STAGE_COMPUTE);
+      device_ptr_, Anvil::GLSLShaderToSPIRVGenerator::MODE_USE_SPECIFIED_SOURCE,
+      compute, Anvil::SHADER_STAGE_COMPUTE);
   vertex_shader_ptr = Anvil::GLSLShaderToSPIRVGenerator::create(
-	  device_ptr_, Anvil::GLSLShaderToSPIRVGenerator::MODE_USE_SPECIFIED_SOURCE,
-	  vertex, Anvil::SHADER_STAGE_VERTEX);
+      device_ptr_, Anvil::GLSLShaderToSPIRVGenerator::MODE_USE_SPECIFIED_SOURCE,
+      vertex, Anvil::SHADER_STAGE_VERTEX);
   fragment_shader_ptr = Anvil::GLSLShaderToSPIRVGenerator::create(
       device_ptr_, Anvil::GLSLShaderToSPIRVGenerator::MODE_USE_SPECIFIED_SOURCE,
       fragment, Anvil::SHADER_STAGE_FRAGMENT);
@@ -662,11 +670,11 @@ void App::init_gfx_pipelines() {
   gfx_manager_ptr->set_pipeline_dsg(pipeline_id_, dsg_ptr_);
 
   if (N_VERTICES == 144) {
-	  gfx_manager_ptr->set_input_assembly_properties(
-		  pipeline_id_, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+    gfx_manager_ptr->set_input_assembly_properties(
+        pipeline_id_, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
   } else {
-	  gfx_manager_ptr->set_input_assembly_properties(
-		  pipeline_id_, VK_PRIMITIVE_TOPOLOGY_LINE_LIST);
+    gfx_manager_ptr->set_input_assembly_properties(
+        pipeline_id_, VK_PRIMITIVE_TOPOLOGY_LINE_LIST);
   }
 
   gfx_manager_ptr->set_rasterization_properties(
@@ -924,87 +932,96 @@ void App::init_camera() {
 
 bool togglePressed = false;
 void App::handle_keys() {
+  // Add a special key toggle for altering rendering mode.
+  int state = glfwGetKey(GetGLFWWindow(), GLFW_KEY_T);
+  if (state == GLFW_PRESS && !togglePressed) {
+    printf("Pressed T.\n");
+    togglePressed = true;
+  } else if (state == GLFW_RELEASE && togglePressed) {
+    printf("Released T.\n");
+    togglePressed = false;
 
-	// Add a special key toggle for altering rendering mode.
-	int state = glfwGetKey(GetGLFWWindow(), GLFW_KEY_T);
-	if (state == GLFW_PRESS && !togglePressed) {
-		printf("Pressed T.\n");
-		togglePressed = true;
-	} else if (state == GLFW_RELEASE && togglePressed) {
-		printf("Released T.\n");
-		togglePressed = false;
+    printf("Toggling render mode.\n");
+    if (N_VERTICES == 144) {
+      N_VERTICES = 64;
+    } else {
+      N_VERTICES = 144;
+    }
 
-		printf("Toggling render mode.\n");
-		if (N_VERTICES == 144) {
-			N_VERTICES = 64;
-		} else {
-			N_VERTICES = 144;
-		}
+    // Reinitialize rendering with new settings.
+    // init_vulkan();
+    // init_window();
+    // init_swapchain();
+    init_buffers();
+    init_dsgs();
+    init_images();
+    init_semaphores();
+    init_shaders();
+    init_compute_pipelines();
+    init_framebuffers();
+    init_gfx_pipelines();
+    init_command_buffers();
+    // init_camera();
+  }
 
-		// Reinitialize rendering with new settings.
-		// init_vulkan();
-		// init_window();
-		//init_swapchain();
-		init_buffers();
-		init_dsgs();
-		init_images();
-		init_semaphores();
-		init_shaders();
-		init_compute_pipelines();
-		init_framebuffers();
-		init_gfx_pipelines();
-		init_command_buffers();
-		// init_camera();
-	}
+  auto keys = Callback::GetInstance()->get_keys();
+  bool toggleDebounce = false;
+  for (int key : *keys) {
+    switch (key) {
+      case 'w': case 'W':
+        camera_.MoveForward(0.1f);
+        break;
+      case 's': case 'S':
+        camera_.MoveBackward(0.1f);
+        break;
+      case 'a': case 'A':
+        camera_.MoveLeft(0.1f);
+        break;
+      case 'd': case 'D':
+        camera_.MoveRight(0.1f);
+        break;
+      case 'q': case 'Q':
+        camera_.MoveAna(0.1f);
+        break;
+      case 'e': case 'E':
+        camera_.MoveKata(0.1f);
+        break;
+      case 'r': case 'R':
+        camera_.MoveUp(0.1f);
+        break;
+      case 'f': case 'F':
+        camera_.MoveDown(0.1f);
+        break;
+      case '1':
+        camera_.RollLeft(0.015f);
+        break;
+      case '3':
+        camera_.RollRight(0.015f);
+        break;
+    }
+  }
+  // KEEP for debugging
 
-
-	auto keys = Callback::GetInstance()->get_keys();
-	bool toggleDebounce = false;
-	for (int key : *keys) {
-		switch (key) {
-		case 'w': case 'W':
-			camera_.MoveForward(0.1f);
-			break;
-		case 's': case 'S':
-			camera_.MoveBackward(0.1f);
-			break;
-		case 'a': case 'A':
-			camera_.MoveLeft(0.1f);
-			break;
-		case 'd': case 'D':
-			camera_.MoveRight(0.1f);
-			break;
-		case 'q': case 'Q':
-			camera_.MoveAna(0.1f);
-			break;
-		case 'e': case 'E':
-			camera_.MoveKata(0.1f);
-			break;
-		case 'r': case 'R':
-			camera_.MoveUp(0.1f);
-			break;
-		case 'f': case 'F':
-			camera_.MoveDown(0.1f);
-			break;
-		case '1':
-			camera_.RollLeft(0.015f);
-			break;
-		case '3':
-			camera_.RollRight(0.015f);
-			break;
-		}
-	}
-
-
-	glm::mat4 view4 =
-		glm::lookAt(glm::vec3(0, 0, -5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-	glm::vec4 f = view4 * glm::vec4(1, 2, 3, 4);
-	mat5 view5 = camera_.getView();
-
-	mat5 proj5 = camera_.getProj();
-	glm::mat4 tran = glm::translate(glm::mat4(1), glm::vec3(1, 2, 3));
-	glm::mat4 t2 = view4 * tran;
-	glm::mat4 t3 = glm::translate(view4, glm::vec3(1, 2, 3));
+  // std::cout << "\n";
+  // mat5 view = camera_.GetViewProj();
+  // (view * vec5(1, 1, 1, 1, 1)).Print();
+  // glm::mat4 view4 =
+  //   glm::lookAt(glm::vec3(0, 0, -5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+  // glm::vec4 f = view4 * glm::vec4(1, 2, 3, 4);
+  // mat5 view5 = camera_.getView();
+  // (view5 * vec5(1, 1, 1, 1, 1)).Print();
+  // view5.Print();
+  // glm::mat4 proj4 = glm::perspective(30.0, 0.75, 1.0, 20.0);
+  // mat5 proj5 = camera_.getProj();
+  // glm::mat4 tran = glm::translate(glm::mat4(1), glm::vec3(1, 2, 3));
+  // glm::mat4 t2 = view4 * tran;
+  // glm::mat4 t3 = glm::translate(view4, glm::vec3(1, 2, 3));
+  // std::cout << "view:\n";
+  // view5.Print();
+  // std::cout << "proj:\n";
+  // proj5.Print();
+  // std::cout << "viewproj:\n";
+  // camera_.GetViewProj().Print();
 }
 
 /*

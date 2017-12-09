@@ -76,12 +76,12 @@ void Camera::RotateKata(float amount) {
 }
 
 void Camera::RollLeft(float amount) {
-  mat5 rot = mat5::rotate(0, 1, -amount);
+  mat5 rot = mat5::rotate(0, 1, amount);
   view_matrix_ = rot * view_matrix_;
 }
 
 void Camera::RollRight(float amount) {
-  mat5 rot = mat5::rotate(0, 1, amount);
+  mat5 rot = mat5::rotate(0, 1, -amount);
   view_matrix_ = rot * view_matrix_;
 }
 
