@@ -23,6 +23,7 @@ layout(set = 1, binding = 0) buffer inputCubeVertices {
 // The output buffer to populate with mesh output points.
 layout(set = 1, binding = 1) buffer outputCubeVertices {
   vec4 data[N_VERTICES];
+  float w[N_VERTICES];
 } outputMeshVertices;
 
 
@@ -37,10 +38,10 @@ void main() {
   vec4 inputPosition = inputMeshVertices[current_invocation_id];
   vec4 outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
   float w = dot(viewProj.row, inputPosition) + viewProj.ww;
-  //outputPosition = outputPosition / vec4(w);
+  outputPosition = outputPosition / vec4(w);
 
-  outputPosition.z = outputPosition.w;
-  outputPosition.w = w;
+  outputPosition.zw = outputPosition.wz;
+  //outputPosition.w = w;
   // if (outputPosition.z < 0.0) outputPosition.z *= -1.0;
 
   outputMeshVertices.data[current_invocation_id] = outputPosition;

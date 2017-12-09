@@ -120,9 +120,6 @@ class App {
   std::vector<VkDeviceSize> inputCubeElementOffsets_;
   std::shared_ptr<Anvil::Buffer> inputCubeBufferPointer_;
 
-  VkDeviceSize timeUniformSizePerSwapchain;
-  std::shared_ptr<Anvil::Buffer> timeUniformPointer;
-
   VkDeviceSize mat5UniformSizePerSwapchain;
   std::shared_ptr<Anvil::Buffer> viewProjUniformPointer;
 

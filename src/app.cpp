@@ -59,7 +59,7 @@
 #define APP_NAME "Four Dimensional Exploration"
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
-#define DEBUG_REREAD false
+#define DEBUG_REREAD 0
 
 // Prepare the actual values of input mesh data.
 std::vector<glm::vec4> MESH_DATA = TESSERACT;
@@ -905,9 +905,7 @@ void App::init_camera() {
 
 void App::handle_keys() {
   auto keys = Callback::GetInstance()->get_keys();
-  //std::cout << "keys: ";
   for (int key : *keys) {
-    //std::cout << (char)key << " ";
     switch (key) {
       case 'w': case 'W':
         camera_.MoveForward(0.1f);
@@ -933,6 +931,12 @@ void App::handle_keys() {
       case 'f': case 'F':
         camera_.MoveDown(0.1f);
         break;
+      case '1':
+        camera_.RollLeft(0.05f);
+        break;
+      case '3':
+        camera_.RollRight(0.05f);
+        break;
     }
   }
   //std::cout << "\n";
@@ -949,12 +953,12 @@ void App::handle_keys() {
   glm::mat4 tran = glm::translate(glm::mat4(1), glm::vec3(1,2,3));
   glm::mat4 t2 = view4 * tran;
   glm::mat4 t3 = glm::translate(view4, glm::vec3(1,2,3));
-  std::cout << "view:\n";
+  /*std::cout << "view:\n";
   view5.Print();
   std::cout << "proj:\n";
   proj5.Print();
   std::cout << "viewproj:\n";
-  camera_.GetViewProj().Print();
+  camera_.GetViewProj().Print();*/
 }
 
 /*
@@ -1048,24 +1052,41 @@ void App::draw_frame(void* app_raw_ptr) {
   
   // Read all data points back.
   if (DEBUG_REREAD) {
-	  for (int i = 0; i < N_VERTICES; ++i) {
-		  glm::vec4 input, output;
-		  app_ptr->inputCubeBufferPointer_->read(app_ptr->inputCubeElementOffsets_[i] + 0 * sizeof(float), sizeof(float), &input.x);
-		  app_ptr->inputCubeBufferPointer_->read(app_ptr->inputCubeElementOffsets_[i] + 1 * sizeof(float), sizeof(float), &input.y);
-		  app_ptr->inputCubeBufferPointer_->read(app_ptr->inputCubeElementOffsets_[i] + 2 * sizeof(float), sizeof(float), &input.z);
-		  app_ptr->inputCubeBufferPointer_->read(app_ptr->inputCubeElementOffsets_[i] + 3 * sizeof(float), sizeof(float), &input.w);
-		  app_ptr->outputCubeVerticesBufferPointer_->read(app_ptr->outputCubeVerticesBufferSizes_[i] + 0 * sizeof(float), sizeof(float), &output.x);
-		  app_ptr->outputCubeVerticesBufferPointer_->read(app_ptr->outputCubeVerticesBufferSizes_[i] + 1 * sizeof(float), sizeof(float), &output.y);
-		  app_ptr->outputCubeVerticesBufferPointer_->read(app_ptr->outputCubeVerticesBufferSizes_[i] + 2 * sizeof(float), sizeof(float), &output.z);
-		  app_ptr->outputCubeVerticesBufferPointer_->read(app_ptr->outputCubeVerticesBufferSizes_[i] + 3 * sizeof(float), sizeof(float), &output.w);
+    for (int i = 0; i < N_VERTICES; ++i) {
+      glm::vec4 input, output;
+      app_ptr->inputCubeBufferPointer_->read(
+          app_ptr->inputCubeElementOffsets_[i] + 0 * sizeof(float),
+          sizeof(float), &input.x);
+      app_ptr->inputCubeBufferPointer_->read(
+          app_ptr->inputCubeElementOffsets_[i] + 1 * sizeof(float),
+          sizeof(float), &input.y);
+      app_ptr->inputCubeBufferPointer_->read(
+          app_ptr->inputCubeElementOffsets_[i] + 2 * sizeof(float),
+          sizeof(float), &input.z);
+      app_ptr->inputCubeBufferPointer_->read(
+          app_ptr->inputCubeElementOffsets_[i] + 3 * sizeof(float),
+          sizeof(float), &input.w);
+      app_ptr->outputCubeVerticesBufferPointer_->read(
+          app_ptr->outputCubeVerticesBufferSizes_[i] + 0 * sizeof(float),
+          sizeof(float), &output.x);
+      app_ptr->outputCubeVerticesBufferPointer_->read(
+          app_ptr->outputCubeVerticesBufferSizes_[i] + 1 * sizeof(float),
+          sizeof(float), &output.y);
+      app_ptr->outputCubeVerticesBufferPointer_->read(
+          app_ptr->outputCubeVerticesBufferSizes_[i] + 2 * sizeof(float),
+          sizeof(float), &output.z);
+      app_ptr->outputCubeVerticesBufferPointer_->read(
+          app_ptr->outputCubeVerticesBufferSizes_[i] + 3 * sizeof(float),
+          sizeof(float), &output.w);
 
-		  std::cout << "i offset: " << app_ptr->inputCubeElementOffsets_[i] << "\n";
-		  std::cout << "o offset: " << app_ptr->outputCubeVerticesBufferSizes_[i] << "\n";
-		  std::cout << "i (" << input.x << ", " << input.y << ", " << input.z << ", "
-			  << input.w << ")\n";
-		  std::cout << "o (" << output.x << ", " << output.y << ", " << output.z << ", "
-			  << output.w << ")\n\n";
-	  }
+      std::cout << "i offset: " << app_ptr->inputCubeElementOffsets_[i] << "\n";
+      std::cout << "o offset: " << app_ptr->outputCubeVerticesBufferSizes_[i]
+                << "\n";
+      std::cout << "i (" << input.x << ", " << input.y << ", " << input.z
+                << ", " << input.w << ")\n";
+      std::cout << "o (" << output.x << ", " << output.y << ", " << output.z
+                << ", " << output.w << ")\n\n";
+    }
   }
 }
 

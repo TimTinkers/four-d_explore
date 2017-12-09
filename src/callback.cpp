@@ -15,12 +15,7 @@ void Callback::init(App* app, Camera* camera, GLFWwindow* window) {
   camera_ = camera;
   scroll_pos_ = 0;
   glfwGetCursorPos(window, &last_x_pos_, &last_y_pos_);
-}
-
-double Callback::get_scroll_pos() {
-  double ret = scroll_pos_;
-  scroll_pos_ = 0;
-  return ret;
+  is_paused_ = false;
 }
 
 void Callback::on_keypress_event_impl(GLFWwindow* window, int key, int scanCode,
@@ -32,7 +27,19 @@ void Callback::on_keypress_event_impl(GLFWwindow* window, int key, int scanCode,
       keys_.clear();
       return;
     }
-    keys_.insert(key);
+    if (key == GLFW_KEY_P) {
+      keys_.clear();
+      is_paused_ = !is_paused_;
+      if (is_paused_) {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+      } else {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwGetCursorPos(window, &last_x_pos_, &last_y_pos_);
+      }
+    }
+    if (!is_paused_) {
+      keys_.insert(key);
+    }
   } else if (action == GLFW_RELEASE) {
     if (keys_.count(key) == 1) {
       keys_.erase(keys_.find(key));
@@ -54,21 +61,23 @@ void Callback::on_mouse_button_event_impl(GLFWwindow* window, int button,
 
 void Callback::on_mouse_move_event_impl(GLFWwindow* window, double xPos,
                                         double yPos) {
-  std::cout << "MPos : (" << xPos << ", " << yPos << ")\n";
-  std::cout << "(" << last_x_pos_ << ", " << last_y_pos_ << ")\n";
-  if (xPos < last_x_pos_) {
-    camera_->RotateLeft(MOUSE_SCALE * (last_x_pos_ - xPos));
-  } else if (xPos > last_x_pos_) {
-    camera_->RotateRight(MOUSE_SCALE * (xPos - last_x_pos_));
-  }
-  if (yPos < last_y_pos_) {
-    camera_->RotateUp(MOUSE_SCALE * (last_y_pos_ - yPos));
-  } else if (yPos > last_y_pos_) {
-    camera_->RotateDown(MOUSE_SCALE * (yPos - last_y_pos_));
-  }
+  //std::cout << "MPos : (" << xPos << ", " << yPos << ")\n";
+  //std::cout << "(" << last_x_pos_ << ", " << last_y_pos_ << ")\n";
+  if (!is_paused_) {
+    if (xPos < last_x_pos_) {
+      camera_->RotateLeft(MOUSE_SCALE * (last_x_pos_ - xPos));
+    } else if (xPos > last_x_pos_) {
+      camera_->RotateRight(MOUSE_SCALE * (xPos - last_x_pos_));
+    }
+    if (yPos < last_y_pos_) {
+      camera_->RotateUp(MOUSE_SCALE * (last_y_pos_ - yPos));
+    } else if (yPos > last_y_pos_) {
+      camera_->RotateDown(MOUSE_SCALE * (yPos - last_y_pos_));
+    }
 
-  last_x_pos_ = xPos;
-  last_y_pos_ = yPos;
+    last_x_pos_ = xPos;
+    last_y_pos_ = yPos;
+  }
 }
 
 void Callback::on_mouse_scroll_event_impl(GLFWwindow* window, double xOffset,

@@ -35,6 +35,8 @@ class Camera {
   void RotateLeft(float amount);
   void RotateAna(float amount);
   void RotateKata(float amount);
+  void RollLeft(float amount);
+  void RollRight(float amount);
 
   void MoveForward(float amount);
   void MoveBackward(float amount);
