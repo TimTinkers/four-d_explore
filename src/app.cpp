@@ -65,7 +65,11 @@
 std::vector<glm::vec4> MESH_CENTERS = { 
 	glm::vec4(0, 0, 0, 0), glm::vec4(1, 0, 0, 0), glm::vec4(2, 0, 0, 0),
 	glm::vec4(0, 0, 0, 1), glm::vec4(1, 0, 0, 1), glm::vec4(2, 0, 0, 1),
-	glm::vec4(0, 0, 0, 2), glm::vec4(1, 0, 0, 2), glm::vec4(2, 0, 0, 2)
+	glm::vec4(0, 0, 0, 2), glm::vec4(1, 0, 0, 2), glm::vec4(2, 0, 0, 2),
+
+	glm::vec4(0, 0, 1, 0), glm::vec4(1, 0, 1, 0), glm::vec4(2, 0, 1, 0),
+	glm::vec4(0, 0, 1, 1), glm::vec4(1, 0, 1, 1), glm::vec4(2, 0, 1, 1),
+	glm::vec4(0, 0, 1, 2), glm::vec4(1, 0, 1, 2), glm::vec4(2, 0, 1, 2)
 };
 #define N_MESHES MESH_CENTERS.size()
 
