@@ -11,7 +11,16 @@ Camera::Camera()
       aspectX_(1.77),
       aspectW_(1),
       zNear_(0.1),
-      zFar_(100) {}
+      zFar_(100),
+      radius_(0.25) {}
+
+void Camera::SetTerrain(std::vector<glm::vec4>& t) {
+  terrain_.clear();
+  //std::copy(t.begin(), t.end(), std::inserter(terrain_, terrain_.end()));
+  for (glm::vec4 v : t) {
+    terrain_.insert(glm::ivec4(v));
+  }
+}
 
 void Camera::SetEye(glm::vec4 eye) { eye_ = eye; }
 
@@ -88,43 +97,130 @@ void Camera::RollRight(float amount) {
 void Camera::MoveForward(float amount) {
   mat5 trans = mat5::translate(3, -amount);
   view_matrix_ = trans * view_matrix_;
+  CheckCollision();
 }
 
 void Camera::MoveBackward(float amount) {
   mat5 trans = mat5::translate(3, amount);
   view_matrix_ = trans * view_matrix_;
+  CheckCollision();
 }
 
 void Camera::MoveRight(float amount) {
   mat5 trans = mat5::translate(0, amount);
   view_matrix_ = trans * view_matrix_;
+  CheckCollision();
 }
 
 void Camera::MoveLeft(float amount) {
   mat5 trans = mat5::translate(0, -amount);
   view_matrix_ = trans * view_matrix_;
+  CheckCollision();
 }
 
 void Camera::MoveUp(float amount) {
   mat5 trans = mat5::translate(1, -amount);
   view_matrix_ = trans * view_matrix_;
+  CheckCollision();
 }
 
 void Camera::MoveDown(float amount) {
   mat5 trans = mat5::translate(1, amount);
   view_matrix_ = trans * view_matrix_;
+  CheckCollision();
 }
 
 void Camera::MoveAna(float amount) {
   mat5 trans = mat5::translate(2, amount);
   view_matrix_ = trans * view_matrix_;
+  CheckCollision();
 }
 
 void Camera::MoveKata(float amount) {
   mat5 trans = mat5::translate(2, -amount);
   view_matrix_ = trans * view_matrix_;
+  CheckCollision();
+}
+
+void PrintVec(const glm::vec4& v) {
+  std::cout << "(" << v[0] << ", " << v[1] << ", " << v[2] << ", " << v[3]
+            << ")\n";
+}
+
+void Camera::CheckCollision() {
+  glm::vec4 col = view_matrix_.get_column();
+  glm::mat4 rot = view_matrix_.get_main_mat();
+  glm::vec4 c = -col*rot;
+
+  glm::vec4 e;
+  glm::vec4 closest_cell;
+  //PrintVec(c);
+  //std::cout << "\n";
+
+  e = c + glm::vec4( radius_, 0, 0, 0);
+  closest_cell = glm::ivec4(glm::round(e));
+  if (terrain_.count(closest_cell) > 0) {
+    float amount = 0.5 + (e - closest_cell)[0];
+    mat5 trans = mat5::translate(0, amount);
+    view_matrix_ = view_matrix_*trans;
+  }
+
+  e = c + glm::vec4(-radius_, 0, 0, 0);
+  closest_cell = glm::ivec4(glm::round(e));
+  if (terrain_.count(closest_cell) > 0) {
+    float amount = 0.5 - (e - closest_cell)[0];
+    mat5 trans = mat5::translate(0, -amount);
+    view_matrix_ = view_matrix_*trans;
+  }
+
+  e = c + glm::vec4(0, radius_, 0, 0);
+  closest_cell = glm::ivec4(glm::round(e));
+  if (terrain_.count(closest_cell) > 0) {
+    float amount = 0.5 + (e - closest_cell)[1];
+    mat5 trans = mat5::translate(1, amount);
+    view_matrix_ = view_matrix_*trans;
+  }
+
+  e = c + glm::vec4(0, -radius_, 0, 0);
+  closest_cell = glm::ivec4(glm::round(e));
+  if (terrain_.count(closest_cell) > 0) {
+    float amount = 0.5 - (e - closest_cell)[1];
+    mat5 trans = mat5::translate(1, -amount);
+    view_matrix_ = view_matrix_*trans;
+  }
+
+  e = c + glm::vec4(0, 0, radius_, 0);
+  closest_cell = glm::ivec4(glm::round(e));
+  if (terrain_.count(closest_cell) > 0) {
+    float amount = 0.5 + (e - closest_cell)[2];
+    mat5 trans = mat5::translate(2, amount);
+    view_matrix_ = view_matrix_*trans;
+  }
+
+  e = c + glm::vec4(0, 0, -radius_, 0);
+  closest_cell = glm::ivec4(glm::round(e));
+  if (terrain_.count(closest_cell) > 0) {
+    float amount = 0.5 - (e - closest_cell)[2];
+    mat5 trans = mat5::translate(2, -amount);
+    view_matrix_ = view_matrix_*trans;
+  }
+
+  e = c + glm::vec4(0, 0, 0, radius_);
+  closest_cell = glm::ivec4(glm::round(e));
+  if (terrain_.count(closest_cell) > 0) {
+    float amount = 0.5 + (e - closest_cell)[3];
+    mat5 trans = mat5::translate(3, amount);
+  }
+
+  e = c + glm::vec4(0, 0, 0, -radius_);
+  closest_cell = glm::ivec4(glm::round(e));
+  if (terrain_.count(closest_cell) > 0) {
+    float amount = 0.5 - (e - closest_cell)[3];
+    mat5 trans = mat5::translate(3, -amount);
+    view_matrix_ = view_matrix_*trans;
+  }
 }
 
 mat5 Camera::GetViewProj() {
-  return projection_matrix_ * view_matrix_;//rot_matrix_ * trans_matrix_;
+  return projection_matrix_ * view_matrix_;
 }

@@ -68,13 +68,13 @@ std::vector<glm::vec4> MESH_CENTERS = {
 	glm::vec4(0, 0, 0, 2), glm::vec4(1, 0, 0, 2), glm::vec4(2, 0, 0, 2),
 
 	glm::vec4(0, 0, 1, 0), glm::vec4(1, 0, 1, 0), glm::vec4(2, 0, 1, 0),
-	glm::vec4(0, 0, 1, 1), glm::vec4(1, 0, 1, 1), glm::vec4(2, 0, 1, 1),
+	glm::vec4(0, 0, 1, 1), /*glm::vec4(1, 0, 1, 1),*/ glm::vec4(2, 0, 1, 1),
 	glm::vec4(0, 0, 1, 2), glm::vec4(1, 0, 1, 2), glm::vec4(2, 0, 1, 2)
 };
-#define N_MESHES MESH_CENTERS.size()
 
 // Set to 64 for wire mesh, 144 for closed figure.
 int N_VERTICES = 144;
+int N_MESHES = MESH_CENTERS.size();
 
 /*
 Create the app and assign default values to several field variables.
@@ -910,17 +910,7 @@ void App::init_camera() {
   camera_.UpdateView();
   camera_.UpdateProj();
   camera_.GetViewProj().Print();
-  //window_ptr_->register_for_callbacks(
-  //    Anvil::WINDOW_CALLBACK_ID_KEYPRESS_RELEASED, on_keypress_event, this);
-  //auto fun = std::bind(&App::on_keypress_event, this, std::placeholders::_1,
-  //                     std::placeholders::_2, std::placeholders::_3,
-  //                     std::placeholders::_4, std::placeholders::_5);
-  //glfwSetKeyCallback(GetGLFWWindow(), &fun);
-  //glfwSetKeyCallback(
-  //    GetGLFWWindow(),
-  //    std::bind(&App::on_keypress_event, this, std::placeholders::_1,
-  //              std::placeholders::_2, std::placeholders::_3,
-  //              std::placeholders::_4, std::placeholders::_5));
+  camera_.SetTerrain(MESH_CENTERS);
   Callback::GetInstance()->init(this, &camera_, GetGLFWWindow());
   glfwSetKeyCallback(GetGLFWWindow(), Callback::on_keypress_event);
   glfwSetMouseButtonCallback(GetGLFWWindow(), Callback::on_mouse_button_event);
@@ -971,10 +961,10 @@ void App::handle_keys() {
   // std::cout << "\n";
   // mat5 view = camera_.GetViewProj();
   // (view * vec5(1, 1, 1, 1, 1)).Print();
-  // glm::mat4 view4 =
-  //   glm::lookAt(glm::vec3(0, 0, -5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+  //glm::mat4 view4 =
+  //   glm::lookAt(glm::vec3(-5, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
   // glm::vec4 f = view4 * glm::vec4(1, 2, 3, 4);
-  // mat5 view5 = camera_.getView();
+  //mat5 view5 = camera_.getView();
   // (view5 * vec5(1, 1, 1, 1, 1)).Print();
   // view5.Print();
   // glm::mat4 proj4 = glm::perspective(30.0, 0.75, 1.0, 20.0);
@@ -983,11 +973,12 @@ void App::handle_keys() {
   // glm::mat4 t2 = view4 * tran;
   // glm::mat4 t3 = glm::translate(view4, glm::vec3(1, 2, 3));
   // std::cout << "view:\n";
-  // view5.Print();
+  //view5.Print();
   // std::cout << "proj:\n";
   // proj5.Print();
   // std::cout << "viewproj:\n";
-  // camera_.GetViewProj().Print();
+  //camera_.GetViewProj().Print();
+  //std::cout << "\n";
 }
 
 void App::ToggleRenderMode() {

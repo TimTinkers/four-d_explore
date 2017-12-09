@@ -4,12 +4,19 @@
 #include "matrix.h"
 
 #include <iostream>
+#include <unordered_set>
+#include <vector>
 
 #include "glm/glm.hpp"
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/hash.hpp"
+#undef GLM_ENABLE_EXPERIMENTAL
 
 class Camera {
  public:
   Camera();
+
+  void SetTerrain(std::vector<glm::vec4>& t);
 
   // Only use following functions for setup. All functions must be called for
   // proper use.
@@ -56,6 +63,8 @@ class Camera {
   mat5 GetViewProj();
 
  private:
+  void CheckCollision();
+
   mat5 view_matrix_;
   mat5 projection_matrix_;
 
@@ -69,6 +78,10 @@ class Camera {
   float aspectW_;
   float zNear_;
   float zFar_;
+
+  float radius_;
+
+  std::unordered_set<glm::ivec4> terrain_;
 };
 
 #endif  // CAMERA_H_
