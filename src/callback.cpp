@@ -41,6 +41,9 @@ void Callback::on_keypress_event_impl(GLFWwindow* window, int key, int scanCode,
       keys_.insert(key);
     }
   } else if (action == GLFW_RELEASE) {
+    if (key == GLFW_KEY_T) {
+      app_->ToggleRenderMode();
+    }
     if (keys_.count(key) == 1) {
       keys_.erase(keys_.find(key));
     }

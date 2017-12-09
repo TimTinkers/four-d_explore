@@ -930,42 +930,8 @@ void App::init_camera() {
   glfwSetInputMode(GetGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
-bool togglePressed = false;
 void App::handle_keys() {
-  // Add a special key toggle for altering rendering mode.
-  int state = glfwGetKey(GetGLFWWindow(), GLFW_KEY_T);
-  if (state == GLFW_PRESS && !togglePressed) {
-    printf("Pressed T.\n");
-    togglePressed = true;
-  } else if (state == GLFW_RELEASE && togglePressed) {
-    printf("Released T.\n");
-    togglePressed = false;
-
-    printf("Toggling render mode.\n");
-    if (N_VERTICES == 144) {
-      N_VERTICES = 64;
-    } else {
-      N_VERTICES = 144;
-    }
-
-    // Reinitialize rendering with new settings.
-    // init_vulkan();
-    // init_window();
-    // init_swapchain();
-    init_buffers();
-    init_dsgs();
-    init_images();
-    init_semaphores();
-    init_shaders();
-    init_compute_pipelines();
-    init_framebuffers();
-    init_gfx_pipelines();
-    init_command_buffers();
-    // init_camera();
-  }
-
   auto keys = Callback::GetInstance()->get_keys();
-  bool toggleDebounce = false;
   for (int key : *keys) {
     switch (key) {
       case 'w': case 'W':
@@ -1022,6 +988,30 @@ void App::handle_keys() {
   // proj5.Print();
   // std::cout << "viewproj:\n";
   // camera_.GetViewProj().Print();
+}
+
+void App::ToggleRenderMode() {
+  printf("Toggling render mode.\n");
+  if (N_VERTICES == 144) {
+    N_VERTICES = 64;
+  } else {
+    N_VERTICES = 144;
+  }
+
+  // Reinitialize rendering with new settings.
+  // init_vulkan();
+  // init_window();
+  // init_swapchain();
+  init_buffers();
+  init_dsgs();
+  init_images();
+  init_semaphores();
+  init_shaders();
+  init_compute_pipelines();
+  init_framebuffers();
+  init_gfx_pipelines();
+  init_command_buffers();
+  // init_camera();
 }
 
 /*

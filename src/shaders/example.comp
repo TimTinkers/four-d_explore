@@ -71,7 +71,6 @@ void main() {
   // that.
   // Otherwise output full triangles for a closed figure.
   if (N_VERTICES == 64) {
-  /*
     // First cube.
     vec4 inputPosition = centerPosition + vec4(-0.5, -0.5, 0.5, -0.5);
     vec4 outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
@@ -585,7 +584,7 @@ void main() {
     outputPosition.zw = outputPosition.wz;
     outputMeshVertices.data[current_invocation_id * N_VERTICES + 63] =
         outputPosition;
-        */
+        
   } else {
     // Organize the faces into triangle pairs.
     int[24][6] faces;

@@ -25,6 +25,8 @@ class App {
   void init();
   void run();
 
+  void ToggleRenderMode();
+
  private:
   // Field variables.
   std::weak_ptr<Anvil::SGPUDevice> device_ptr_;
