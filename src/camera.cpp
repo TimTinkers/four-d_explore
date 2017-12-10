@@ -208,22 +208,17 @@ void Camera::CheckCollision() {
   e = c + glm::vec4(0, 0, 0, radius_);
   closest_cell = glm::ivec4(glm::round(e));
   if (terrain_.count(closest_cell) > 0) {
-	  printf("collided forward: %d, %d, %d, %d\n", closest_cell.x, 
-		  closest_cell.y, closest_cell.z, closest_cell.w);
     float amount = 0.5 + (e - closest_cell)[3];
-	printf("amount: %f\n", amount);
     mat5 trans = mat5::translate(3, amount);
-	view_matrix_ = view_matrix_*trans;
+    view_matrix_ = view_matrix_ * trans;
   }
 
   e = c + glm::vec4(0, 0, 0, -radius_);
   closest_cell = glm::ivec4(glm::round(e));
   if (terrain_.count(closest_cell) > 0) {
-	  printf("collided backward: %d, %d, %d, %d\n", closest_cell.x,
-		  closest_cell.y, closest_cell.z, closest_cell.w);
     float amount = 0.5 - (e - closest_cell)[3];
     mat5 trans = mat5::translate(3, -amount);
-    view_matrix_ = view_matrix_*trans;
+    view_matrix_ = view_matrix_ * trans;
   }
 }
 

@@ -10,7 +10,7 @@
 #include "tetrahedron.h"
 
 // Constants.
-#define CHUNK_SIZE 6
+#define CHUNK_SIZE 9
 
 struct hashVec {
   size_t operator()(const glm::ivec4& c) const {
@@ -29,37 +29,37 @@ struct hashVec {
  *	Chunks contain the blocks between (0, 0, 0, 0) and (15, 15, 15, 15) plus the offset given at creation time.
  */
 class Terrain {
-	public:
-		class Block {
-			public:
-				Block(glm::ivec4 c, int t);
-				std::vector<Tetrahedron> GetTets();
-				glm::ivec4 GetPos();
-				int GetType();
+ public:
+  class Block {
+   public:
+    Block(glm::ivec4 c, int t);
+    std::vector<Tetrahedron> GetTets();
+    glm::ivec4 GetPos();
+    int GetType();
 
-			private:
-				std::vector<Tetrahedron> TesselateCube(std::vector<glm::vec4>& corners, 
-					std::vector<int>& cube_indices);
-				glm::ivec4 pos_;
-				int type_;
-		};
+   private:
+    std::vector<Tetrahedron> TesselateCube(std::vector<glm::vec4>& corners,
+                                           std::vector<int>& cube_indices);
+    glm::ivec4 pos_;
+    int type_;
+  };
 
-		class Chunk {
-			public:
-				Chunk(glm::ivec4 c);
-				Block* GetBlock(glm::ivec4 c);
-				std::vector<Block*> GetAllBlocks();
+  class Chunk {
+   public:
+    Chunk(glm::ivec4 c);
+    Block* GetBlock(glm::ivec4 c);
+    std::vector<Block*> GetAllBlocks();
 
-			private:
-				std::unordered_map<glm::ivec4, Block, hashVec> blocks_;
-				glm::ivec4 ref_;
-		};
+   private:
+    std::unordered_map<glm::ivec4, Block, hashVec> blocks_;
+    glm::ivec4 ref_;
+  };
 
-		void GenChunk(glm::ivec4 c);
-		Block* GetBlock(glm::ivec4 c);
+  void GenChunk(glm::ivec4 c);
+  Block* GetBlock(glm::ivec4 c);
 
-	private:
-		std::unordered_map<glm::ivec4, Chunk, hashVec> chunks_;
+ private:
+  std::unordered_map<glm::ivec4, Chunk, hashVec> chunks_;
 };
 
 #endif  // TERRAIN_H_

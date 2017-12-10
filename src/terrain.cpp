@@ -1,45 +1,42 @@
 // Imports.
 #include "terrain.h"
+
 #include <algorithm>
 #include <math.h>
+
 #include "perlin.h"
 #include "tetrahedron.h"
+
+#include <iostream>
 
 /**
  *	Initialize a block at the given integer coordinates.
  */
-Terrain::Block::Block(glm::ivec4 c, int t) 
-	: pos_(c), type_(t) {
-}
+Terrain::Block::Block(glm::ivec4 c, int t) : pos_(c), type_(t) {}
 
-glm::ivec4 Terrain::Block::GetPos() {
-	return pos_;
-}
+glm::ivec4 Terrain::Block::GetPos() { return pos_; }
 
-int Terrain::Block::GetType() {
-	return type_;
-}
+int Terrain::Block::GetType() { return type_; }
 
 /**
  *	Generate a single 4D chunk of terrain using Perlin noise.
  *	The chunk is rooted at the given coordinates.
  */
-Terrain::Chunk::Chunk(glm::ivec4 c) 
-	: ref_(c) {
+Terrain::Chunk::Chunk(glm::ivec4 c) : ref_(c) {
   for (int x = 0; x < CHUNK_SIZE; ++x) {
     for (int y = 0; y < CHUNK_SIZE; ++y) {
       for (int z = 0; z < CHUNK_SIZE; ++z) {
         for (int w = 0; w < CHUNK_SIZE; ++w) {
           glm::ivec4 n_coord(x, y, z, w);
           n_coord += ref_;
-          float val = 10.f * Perlin::octave(x, y, z, w);
-          val +=
-              std::max(0.0, sqrt(pow(y, 2.0) + pow(z, 2.0) + pow(w, 2.0)));
+          float val = Perlin::octave(x, y, z, w);
+          val += std::max(0.0,
+                          5.0 - sqrt(pow(y, 2.0) + pow(z, 2.0) + pow(w, 2.0)));
           if (val > 0) {
-			  blocks_.emplace(n_coord, Terrain::Block(n_coord, 1));
-		  } else {
-			  blocks_.emplace(n_coord, Terrain::Block(n_coord, 0));
-		  }
+            blocks_.emplace(n_coord, Terrain::Block(n_coord, 1));
+          } else {
+            blocks_.emplace(n_coord, Terrain::Block(n_coord, 0));
+          }
         }
       }
     }
@@ -47,26 +44,25 @@ Terrain::Chunk::Chunk(glm::ivec4 c)
 }
 
 Terrain::Block* Terrain::Chunk::GetBlock(glm::ivec4 c) {
-	if (blocks_.count(c) > 0) {
-		Block selectedBlock = blocks_.at(c);
-		return &selectedBlock;
-	}
+  if (blocks_.count(c) > 0) {
+    return &blocks_.at(c);
+  }
 }
 
 std::vector<Terrain::Block*> Terrain::Chunk::GetAllBlocks() {
-	std::vector<Terrain::Block*> outputBlocks;
-	for (int x = 0; x < CHUNK_SIZE; ++x) {
-		for (int y = 0; y < CHUNK_SIZE; ++y) {
-			for (int z = 0; z < CHUNK_SIZE; ++z) {
-				for (int w = 0; w < CHUNK_SIZE; ++w) {
-					glm::ivec4 n_coord(x, y, z, w);
-					n_coord += ref_;
-					outputBlocks.push_back(&blocks_.at(n_coord));
-				}
-			}
-		}
-	}
-	return outputBlocks;
+  std::vector<Terrain::Block*> outputBlocks;
+  for (int x = 0; x < CHUNK_SIZE; ++x) {
+    for (int y = 0; y < CHUNK_SIZE; ++y) {
+      for (int z = 0; z < CHUNK_SIZE; ++z) {
+        for (int w = 0; w < CHUNK_SIZE; ++w) {
+          glm::ivec4 n_coord(x, y, z, w);
+          n_coord += ref_;
+          outputBlocks.push_back(&blocks_.at(n_coord));
+        }
+      }
+    }
+  }
+  return outputBlocks;
 }
 
 Terrain::Block* Terrain::GetBlock(glm::ivec4 c) {
@@ -74,7 +70,7 @@ Terrain::Block* Terrain::GetBlock(glm::ivec4 c) {
       c - glm::ivec4(c[0] - c[0] % CHUNK_SIZE, c[1] - c[1] % CHUNK_SIZE,
                      c[2] - c[2] % CHUNK_SIZE, c[3] - c[3] % CHUNK_SIZE);
   if (chunks_.count(ref) > 0) {
-    chunks_.at(ref).GetBlock(c);
+    return chunks_.at(ref).GetBlock(c);
   } else {
     return nullptr;
   }
@@ -90,21 +86,21 @@ std::vector<Tetrahedron> Terrain::Block::GetTets() {
   std::vector<Tetrahedron> tets;
   std::vector<glm::vec4> corners;
   corners.emplace_back(glm::vec4(pos_) + glm::vec4(-0.5f, -0.5f, -0.5f, -0.5f));
-  corners.emplace_back(glm::vec4(pos_) + glm::vec4(-0.5f, -0.5f, -0.5f,  0.5f));
-  corners.emplace_back(glm::vec4(pos_) + glm::vec4(-0.5f, -0.5f,  0.5f,  0.5f));
-  corners.emplace_back(glm::vec4(pos_) + glm::vec4(-0.5f, -0.5f,  0.5f, -0.5f));
-  corners.emplace_back(glm::vec4(pos_) + glm::vec4(-0.5f,  0.5f, -0.5f, -0.5f));
-  corners.emplace_back(glm::vec4(pos_) + glm::vec4(-0.5f,  0.5f, -0.5f,  0.5f));
-  corners.emplace_back(glm::vec4(pos_) + glm::vec4(-0.5f,  0.5f,  0.5f,  0.5f));
-  corners.emplace_back(glm::vec4(pos_) + glm::vec4(-0.5f,  0.5f,  0.5f, -0.5f));
-  corners.emplace_back(glm::vec4(pos_) + glm::vec4( 0.5f, -0.5f, -0.5f, -0.5f));
-  corners.emplace_back(glm::vec4(pos_) + glm::vec4( 0.5f, -0.5f, -0.5f,  0.5f));
-  corners.emplace_back(glm::vec4(pos_) + glm::vec4( 0.5f, -0.5f,  0.5f,  0.5f));
-  corners.emplace_back(glm::vec4(pos_) + glm::vec4( 0.5f, -0.5f,  0.5f, -0.5f));
-  corners.emplace_back(glm::vec4(pos_) + glm::vec4( 0.5f,  0.5f, -0.5f, -0.5f));
-  corners.emplace_back(glm::vec4(pos_) + glm::vec4( 0.5f,  0.5f, -0.5f,  0.5f));
-  corners.emplace_back(glm::vec4(pos_) + glm::vec4( 0.5f,  0.5f,  0.5f,  0.5f));
-  corners.emplace_back(glm::vec4(pos_) + glm::vec4( 0.5f,  0.5f,  0.5f, -0.5f));
+  corners.emplace_back(glm::vec4(pos_) + glm::vec4(-0.5f, -0.5f, -0.5f, 0.5f));
+  corners.emplace_back(glm::vec4(pos_) + glm::vec4(-0.5f, -0.5f, 0.5f, 0.5f));
+  corners.emplace_back(glm::vec4(pos_) + glm::vec4(-0.5f, -0.5f, 0.5f, -0.5f));
+  corners.emplace_back(glm::vec4(pos_) + glm::vec4(-0.5f, 0.5f, -0.5f, -0.5f));
+  corners.emplace_back(glm::vec4(pos_) + glm::vec4(-0.5f, 0.5f, -0.5f, 0.5f));
+  corners.emplace_back(glm::vec4(pos_) + glm::vec4(-0.5f, 0.5f, 0.5f, 0.5f));
+  corners.emplace_back(glm::vec4(pos_) + glm::vec4(-0.5f, 0.5f, 0.5f, -0.5f));
+  corners.emplace_back(glm::vec4(pos_) + glm::vec4(0.5f, -0.5f, -0.5f, -0.5f));
+  corners.emplace_back(glm::vec4(pos_) + glm::vec4(0.5f, -0.5f, -0.5f, 0.5f));
+  corners.emplace_back(glm::vec4(pos_) + glm::vec4(0.5f, -0.5f, 0.5f, 0.5f));
+  corners.emplace_back(glm::vec4(pos_) + glm::vec4(0.5f, -0.5f, 0.5f, -0.5f));
+  corners.emplace_back(glm::vec4(pos_) + glm::vec4(0.5f, 0.5f, -0.5f, -0.5f));
+  corners.emplace_back(glm::vec4(pos_) + glm::vec4(0.5f, 0.5f, -0.5f, 0.5f));
+  corners.emplace_back(glm::vec4(pos_) + glm::vec4(0.5f, 0.5f, 0.5f, 0.5f));
+  corners.emplace_back(glm::vec4(pos_) + glm::vec4(0.5f, 0.5f, 0.5f, -0.5f));
   for (int i = 0; i < 8; ++i) {
     std::vector<int> cube_indices;
     switch (i) {

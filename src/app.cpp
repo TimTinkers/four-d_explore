@@ -119,13 +119,13 @@ int N_VERTICES = 144;
 int N_MESHES = 0;
 
 void App::init_meshes() {
-	for (int i = 0; i < blocks_.size(); i++) {
-		Terrain::Block* block = blocks_.at(i);
-		if (block->GetType() > 0) {
-			MESH_CENTERS.push_back(block->GetPos());
-		}
-	}
-	N_MESHES = MESH_CENTERS.size();
+  for (int i = 0; i < blocks_.size(); i++) {
+    Terrain::Block* block = blocks_.at(i);
+    if (block->GetType() > 0) {
+      MESH_CENTERS.push_back(block->GetPos());
+    }
+  }
+  N_MESHES = MESH_CENTERS.size();
 }
 
 /*
@@ -566,9 +566,13 @@ void App::init_shaders() {
   vertex_shader_ptr->add_definition_value_pair("N_VERTICES_PER_SINE",
 	  N_VERTICES_PER_SINE);*/
   printf("Attempting to transmit N_MESHES: %d\n", N_MESHES);
+  std::cout << std::min(N_MESHES, 512) << " " << 1 + (N_MESHES / 512) << "\n";
+  std::cout << GL_MAX_COMPUTE_WORK_GROUP_SIZE << "\n";
   compute_shader_ptr->add_definition_value_pair("N_MESHES", N_MESHES);
-  compute_shader_ptr->add_definition_value_pair("N_MESHES_X", std::min(N_MESHES, 1024));
-  compute_shader_ptr->add_definition_value_pair("N_MESHES_Y", 1 + (N_MESHES / 1024));
+  compute_shader_ptr->add_definition_value_pair("N_MESHES_X",
+                                                std::min(N_MESHES, 512));
+  compute_shader_ptr->add_definition_value_pair("N_MESHES_Y",
+                                                1 + (N_MESHES / 512));
   vertex_shader_ptr->add_definition_value_pair("N_MESHES", N_MESHES);
   compute_shader_ptr->add_definition_value_pair("N_VERTICES", N_VERTICES);
   vertex_shader_ptr->add_definition_value_pair("N_VERTICES", N_VERTICES);

@@ -6,7 +6,7 @@ float Perlin::noise(int x, int y, int z, int w) {
   int v = x + y * 57 + z * 9371 + w * 10903;
   v = (v << 13) ^ v;
   return (1.0f -
-          ((z * (z * z * 15731 + 789221) + 1376312589) & 0x7fffffff) /
+          ((v * (v * v* 15731 + 789221) + 1376312589) & 0x7fffffff) /
               1073741824.0);
 }
 
