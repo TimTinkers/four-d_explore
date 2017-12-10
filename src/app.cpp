@@ -510,12 +510,26 @@ void App::init_shaders() {
   std::string fragment{std::istreambuf_iterator<char>(infileFragment),
                        std::istreambuf_iterator<char>()};
 
+// Read the geometry shader from a separate file.
+// If running on Windows, assume it's Tim's machine and resolve this hacky path
+// garbage.
+#ifdef _WIN32
+  std::ifstream infileGeometry{
+      "E:\\Penn 17 - 18\\CIS 565\\four-d_explore\\src\\shaders\\tri.geom"};
+#else
+  std::ifstream infileGeometry{"../src/shaders/tri.geom"};
+#endif
+  std::string geo{std::istreambuf_iterator<char>(infileGeometry),
+                  std::istreambuf_iterator<char>()};
+
   std::shared_ptr<Anvil::GLSLShaderToSPIRVGenerator> compute_shader_ptr;
   std::shared_ptr<Anvil::ShaderModule> compute_shader_module_ptr;
   std::shared_ptr<Anvil::GLSLShaderToSPIRVGenerator> fragment_shader_ptr;
   std::shared_ptr<Anvil::ShaderModule> fragment_shader_module_ptr;
   std::shared_ptr<Anvil::GLSLShaderToSPIRVGenerator> vertex_shader_ptr;
   std::shared_ptr<Anvil::ShaderModule> vertex_shader_module_ptr;
+  std::shared_ptr<Anvil::GLSLShaderToSPIRVGenerator> geo_shader_ptr;
+  std::shared_ptr<Anvil::ShaderModule> geo_shader_module_ptr;
 
   compute_shader_ptr = Anvil::GLSLShaderToSPIRVGenerator::create(
       device_ptr_, Anvil::GLSLShaderToSPIRVGenerator::MODE_USE_SPECIFIED_SOURCE,
@@ -526,6 +540,9 @@ void App::init_shaders() {
   fragment_shader_ptr = Anvil::GLSLShaderToSPIRVGenerator::create(
       device_ptr_, Anvil::GLSLShaderToSPIRVGenerator::MODE_USE_SPECIFIED_SOURCE,
       fragment, Anvil::SHADER_STAGE_FRAGMENT);
+  geo_shader_ptr = Anvil::GLSLShaderToSPIRVGenerator::create(
+      device_ptr_, Anvil::GLSLShaderToSPIRVGenerator::MODE_USE_SPECIFIED_SOURCE,
+      geo, Anvil::SHADER_STAGE_GEOMETRY);
 
   // compute_shader_ptr->add_definition_value_pair("N_TRIANGLES", N_TRIANGLES);
   // fragment_shader_ptr->add_definition_value_pair("N_TRIANGLES", N_TRIANGLES);
@@ -550,10 +567,13 @@ void App::init_shaders() {
       device_ptr_, fragment_shader_ptr);
   vertex_shader_module_ptr = Anvil::ShaderModule::create_from_spirv_generator(
       device_ptr_, vertex_shader_ptr);
+  geo_shader_module_ptr = Anvil::ShaderModule::create_from_spirv_generator(
+      device_ptr_, geo_shader_ptr);
 
   compute_shader_module_ptr->set_name("Compute shader module");
   fragment_shader_module_ptr->set_name("Fragment shader module");
   vertex_shader_module_ptr->set_name("Vertex shader module");
+  geo_shader_module_ptr->set_name("Geometry shader module");
 
   cs_ptr_.reset(new Anvil::ShaderModuleStageEntryPoint(
 	  "main", compute_shader_module_ptr, Anvil::SHADER_STAGE_COMPUTE));
@@ -561,6 +581,8 @@ void App::init_shaders() {
       "main", fragment_shader_module_ptr, Anvil::SHADER_STAGE_FRAGMENT));
   vs_ptr_.reset(new Anvil::ShaderModuleStageEntryPoint(
       "main", vertex_shader_module_ptr, Anvil::SHADER_STAGE_VERTEX));
+  ge_ptr_.reset(new Anvil::ShaderModuleStageEntryPoint(
+      "main", geo_shader_module_ptr, Anvil::SHADER_STAGE_GEOMETRY));
 }
 
 /*
@@ -642,7 +664,8 @@ void App::init_gfx_pipelines() {
   anvil_assert(result);
 
   result = renderpass_ptr_->add_subpass(
-      *fs_ptr_, Anvil::ShaderModuleStageEntryPoint(), /* geometry_shader */
+      *fs_ptr_,
+      *ge_ptr_, /* geometry_shader */
       Anvil::ShaderModuleStageEntryPoint(), /* tess_control_shader    */
       Anvil::ShaderModuleStageEntryPoint(), /* tess_evaluation_shader */
       *vs_ptr_, &render_pass_subpass_id);
@@ -964,7 +987,7 @@ void App::handle_keys() {
   //glm::mat4 view4 =
   //   glm::lookAt(glm::vec3(-5, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
   // glm::vec4 f = view4 * glm::vec4(1, 2, 3, 4);
-  //mat5 view5 = camera_.getView();
+  // mat5 view5 = camera_.getView();
   // (view5 * vec5(1, 1, 1, 1, 1)).Print();
   // view5.Print();
   // glm::mat4 proj4 = glm::perspective(30.0, 0.75, 1.0, 20.0);
@@ -973,12 +996,12 @@ void App::handle_keys() {
   // glm::mat4 t2 = view4 * tran;
   // glm::mat4 t3 = glm::translate(view4, glm::vec3(1, 2, 3));
   // std::cout << "view:\n";
-  //view5.Print();
+  // view5.Print();
   // std::cout << "proj:\n";
   // proj5.Print();
   // std::cout << "viewproj:\n";
-  //camera_.GetViewProj().Print();
-  //std::cout << "\n";
+  // camera_.GetViewProj().Print();
+  // std::cout << "\n";
 }
 
 void App::ToggleRenderMode() {
@@ -1096,8 +1119,10 @@ void App::draw_frame(void* app_raw_ptr) {
   
   // Read all data points back.
   if (DEBUG_REREAD) {
-    for (int i = 0; i < N_MESHES; ++i) {
+    for (int i = 0; i < N_MESHES*N_VERTICES; ++i) {
+      if (i != 32 && i != 33) continue;
       glm::vec4 input, output;
+      /*
       app_ptr->inputCubeBufferPointer_->read(
           app_ptr->inputCubeElementOffsets_[i] + 0 * sizeof(float),
           sizeof(float), &input.x);
@@ -1109,7 +1134,7 @@ void App::draw_frame(void* app_raw_ptr) {
           sizeof(float), &input.z);
       app_ptr->inputCubeBufferPointer_->read(
           app_ptr->inputCubeElementOffsets_[i] + 3 * sizeof(float),
-          sizeof(float), &input.w);
+          sizeof(float), &input.w);*/
       app_ptr->outputCubeVerticesBufferPointer_->read(
           app_ptr->outputCubeVerticesBufferSizes_[i] + 0 * sizeof(float),
           sizeof(float), &output.x);
@@ -1122,12 +1147,20 @@ void App::draw_frame(void* app_raw_ptr) {
       app_ptr->outputCubeVerticesBufferPointer_->read(
           app_ptr->outputCubeVerticesBufferSizes_[i] + 3 * sizeof(float),
           sizeof(float), &output.w);
+      if (output.x < 1 && output.x > -1 &&
+          output.y < 1 && output.y > -1 &&
+          output.z < 1 && output.z > -1) {
+        std::cout << "FOUND ONE";
+      }
+      if (output.z > 100) {
+        std::cout << "FAR";
+      }
 
-      std::cout << "i offset: " << app_ptr->inputCubeElementOffsets_[i] << "\n";
-      std::cout << "o offset: " << app_ptr->outputCubeVerticesBufferSizes_[i]
-                << "\n";
-      std::cout << "i (" << input.x << ", " << input.y << ", " << input.z
-                << ", " << input.w << ")\n";
+      //std::cout << "i offset: " << app_ptr->inputCubeElementOffsets_[i] << "\n";
+      std::cout << "o offset: " << i << " "
+                << app_ptr->outputCubeVerticesBufferSizes_[i] << "\n";
+      //std::cout << "i (" << input.x << ", " << input.y << ", " << input.z
+      //          << ", " << input.w << ")\n";
       std::cout << "o (" << output.x << ", " << output.y << ", " << output.z
                 << ", " << output.w << ")\n\n";
     }

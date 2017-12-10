@@ -75,6 +75,7 @@ class App {
   std::shared_ptr<Anvil::ShaderModuleStageEntryPoint> cs_ptr_;
   std::shared_ptr<Anvil::ShaderModuleStageEntryPoint> fs_ptr_;
   std::shared_ptr<Anvil::ShaderModuleStageEntryPoint> vs_ptr_;
+  std::shared_ptr<Anvil::ShaderModuleStageEntryPoint> ge_ptr_;
   void init_shaders();
 
   // Compute pipeline initialization and helpers.
