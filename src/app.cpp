@@ -522,11 +522,17 @@ void App::init_shaders() {
 // Read the geometry shader from a separate file.
 // If running on Windows, assume it's Tim's machine and resolve this hacky path
 // garbage.
+  std::string file_name = "";
+  if (N_VERTICES == 144) {
+    file_name = "tri.geom";
+  } else {
+    file_name = "line.geom";
+  }
 #ifdef _WIN32
   std::ifstream infileGeometry{
-      "E:\\Penn 17 - 18\\CIS 565\\four-d_explore\\src\\shaders\\tri.geom"};
+      "E:\\Penn 17 - 18\\CIS 565\\four-d_explore\\src\\shaders\\" + file_name};
 #else
-  std::ifstream infileGeometry{"../src/shaders/tri.geom"};
+  std::ifstream infileGeometry{"../src/shaders/" + file_name};
 #endif
   std::string geo{std::istreambuf_iterator<char>(infileGeometry),
                   std::istreambuf_iterator<char>()};
@@ -680,8 +686,7 @@ void App::init_gfx_pipelines() {
   anvil_assert(result);
 
   result = renderpass_ptr_->add_subpass(
-      *fs_ptr_,
-      *ge_ptr_, /* geometry_shader */
+      *fs_ptr_, *ge_ptr_,                   /* geometry_shader */
       Anvil::ShaderModuleStageEntryPoint(), /* tess_control_shader    */
       Anvil::ShaderModuleStageEntryPoint(), /* tess_evaluation_shader */
       *vs_ptr_, &render_pass_subpass_id);
