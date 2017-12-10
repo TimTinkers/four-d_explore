@@ -572,13 +572,7 @@ void App::init_shaders() {
   vertex_shader_ptr->add_definition_value_pair("N_VERTICES_PER_SINE",
 	  N_VERTICES_PER_SINE);*/
   printf("Attempting to transmit N_MESHES: %d\n", N_MESHES);
-  std::cout << std::min(N_MESHES, 512) << " " << 1 + (N_MESHES / 512) << "\n";
-  std::cout << GL_MAX_COMPUTE_WORK_GROUP_SIZE << "\n";
   compute_shader_ptr->add_definition_value_pair("N_MESHES", N_MESHES);
-  compute_shader_ptr->add_definition_value_pair("N_MESHES_X",
-                                                std::min(N_MESHES, 512));
-  compute_shader_ptr->add_definition_value_pair("N_MESHES_Y",
-                                                1 + (N_MESHES / 512));
   vertex_shader_ptr->add_definition_value_pair("N_MESHES", N_MESHES);
   compute_shader_ptr->add_definition_value_pair("N_VERTICES", N_VERTICES);
   vertex_shader_ptr->add_definition_value_pair("N_VERTICES", N_VERTICES);
@@ -624,14 +618,8 @@ void App::init_compute_pipelines() {
       *cs_ptr_, &compute_pipeline_id_);
   anvil_assert(result);
 
-  result = compute_manager_ptr->attach_push_constant_range_to_pipeline(
-      compute_pipeline_id_, 0, /* offset */
-      4,                       /* size   */
-      VK_SHADER_STAGE_COMPUTE_BIT);
-  anvil_assert(result);
-
-  result = compute_manager_ptr->set_pipeline_dsg(compute_pipeline_id_,
-                                                 compute_dsg_ptr_);
+  result = compute_manager_ptr->
+	  set_pipeline_dsg(compute_pipeline_id_, compute_dsg_ptr_);
   anvil_assert(result);
 
   result = compute_manager_ptr->bake();
@@ -870,7 +858,7 @@ void App::init_command_buffers() {
         0, /* firstSet */
         n_producer_dses, producer_dses, 0, nullptr);
 
-    draw_cmd_buffer_ptr->record_dispatch(2,  /* x */
+    draw_cmd_buffer_ptr->record_dispatch(1 + (N_MESHES / 512),  /* x */
                                          1,  /* y */
                                          1); /* z */
 

@@ -10,7 +10,7 @@
 #include "tetrahedron.h"
 
 // Constants.
-#define CHUNK_SIZE 9
+#define CHUNK_SIZE 12
 
 struct hashVec {
   size_t operator()(const glm::ivec4& c) const {
