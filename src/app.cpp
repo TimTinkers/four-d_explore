@@ -62,14 +62,18 @@
 #define DEBUG_REREAD 0
 
 // Prepare the actual values of input mesh data.
-std::vector<glm::vec4> MESH_CENTERS = { 
-	glm::vec4(0, 0, 0, 0), glm::vec4(1, 0, 0, 0), glm::vec4(2, 0, 0, 0),
-	glm::vec4(0, 0, 0, 1), glm::vec4(1, 0, 0, 1), glm::vec4(2, 0, 0, 1),
-	glm::vec4(0, 0, 0, 2), glm::vec4(1, 0, 0, 2), glm::vec4(2, 0, 0, 2),
+std::vector<glm::vec4> MESH_CENTERS = {
+	glm::vec4(0, 0, 0, 0), glm::vec4(1, 0, 0, 0), glm::vec4(2, 0, 0, 0), glm::vec4(3, 0, 0, 0), glm::vec4(4, 0, 0, 0),
+	glm::vec4(0, 1, 0, 0), glm::vec4(1, 1, 0, 0), glm::vec4(2, 1, 0, 0), glm::vec4(3, 1, 0, 0), glm::vec4(4, 1, 0, 0),
+	glm::vec4(0, 2, 0, 0), glm::vec4(1, 2, 0, 0), glm::vec4(2, 2, 0, 0), glm::vec4(3, 2, 0, 0), glm::vec4(4, 2, 0, 0),
+	glm::vec4(0, 3, 0, 0), glm::vec4(1, 3, 0, 0), glm::vec4(2, 3, 0, 0), glm::vec4(3, 3, 0, 0), glm::vec4(4, 3, 0, 0),
+	glm::vec4(0, 4, 0, 0), glm::vec4(1, 4, 0, 0), glm::vec4(2, 4, 0, 0), glm::vec4(3, 4, 0, 0), glm::vec4(4, 4, 0, 0),
 
-	glm::vec4(0, 0, 1, 0), glm::vec4(1, 0, 1, 0), glm::vec4(2, 0, 1, 0),
-	glm::vec4(0, 0, 1, 1), /*glm::vec4(1, 0, 1, 1),*/ glm::vec4(2, 0, 1, 1),
-	glm::vec4(0, 0, 1, 2), glm::vec4(1, 0, 1, 2), glm::vec4(2, 0, 1, 2)
+	glm::vec4(0, 0, 4, 0), glm::vec4(1, 0, 4, 0), glm::vec4(2, 0, 4, 0), glm::vec4(3, 0, 4, 0), glm::vec4(4, 0, 4, 0),
+	glm::vec4(0, 1, 4, 0),																		glm::vec4(4, 1, 4, 0),
+	glm::vec4(0, 2, 4, 0),																		glm::vec4(4, 2, 4, 0),
+	glm::vec4(0, 3, 4, 0),																		glm::vec4(4, 3, 4, 0),
+	glm::vec4(0, 4, 4, 0), glm::vec4(1, 4, 4, 0), glm::vec4(2, 4, 4, 0), glm::vec4(3, 4, 4, 0), glm::vec4(4, 4, 4, 0),
 };
 
 // Set to 64 for wire mesh, 144 for closed figure.
