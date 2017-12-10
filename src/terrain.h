@@ -10,7 +10,7 @@
 #include "tetrahedron.h"
 
 // Constants.
-#define CHUNK_SIZE 16
+#define CHUNK_SIZE 6
 
 struct hashVec {
   size_t operator()(const glm::ivec4& c) const {
@@ -32,19 +32,23 @@ class Terrain {
 	public:
 		class Block {
 			public:
-				Block(glm::ivec4 c);
+				Block(glm::ivec4 c, int t);
 				std::vector<Tetrahedron> GetTets();
-	   
+				glm::ivec4 GetPos();
+				int GetType();
+
 			private:
 				std::vector<Tetrahedron> TesselateCube(std::vector<glm::vec4>& corners, 
 					std::vector<int>& cube_indices);
 				glm::ivec4 pos_;
+				int type_;
 		};
 
 		class Chunk {
 			public:
 				Chunk(glm::ivec4 c);
 				Block* GetBlock(glm::ivec4 c);
+				std::vector<Block*> GetAllBlocks();
 
 			private:
 				std::unordered_map<glm::ivec4, Block, hashVec> blocks_;

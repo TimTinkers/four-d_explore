@@ -21,13 +21,16 @@
 class App {
  public:
   // App boilerplate.
-  App();
+  App(std::vector<Terrain::Block*> blocks);
   void init();
   void run();
 
   void ToggleRenderMode();
 
  private:
+	 std::vector<Terrain::Block*> blocks_;
+	 void init_meshes();
+
   // Field variables.
   std::weak_ptr<Anvil::SGPUDevice> device_ptr_;
   std::shared_ptr<Anvil::Instance> instance_ptr_;

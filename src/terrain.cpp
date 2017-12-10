@@ -8,10 +8,22 @@
 /**
  *	Initialize a block at the given integer coordinates.
  */
-Terrain::Block::Block(glm::ivec4 c) 
-	: pos_(c) {
+Terrain::Block::Block(glm::ivec4 c, int t) 
+	: pos_(c), type_(t) {
 }
 
+glm::ivec4 Terrain::Block::GetPos() {
+	return pos_;
+}
+
+int Terrain::Block::GetType() {
+	return type_;
+}
+
+/**
+ *	Generate a single 4D chunk of terrain using Perlin noise.
+ *	The chunk is rooted at the given coordinates.
+ */
 Terrain::Chunk::Chunk(glm::ivec4 c) 
 	: ref_(c) {
   for (int x = 0; x < CHUNK_SIZE; ++x) {
@@ -20,12 +32,14 @@ Terrain::Chunk::Chunk(glm::ivec4 c)
         for (int w = 0; w < CHUNK_SIZE; ++w) {
           glm::ivec4 n_coord(x, y, z, w);
           n_coord += ref_;
-          float val = Perlin::octave(x, y, z, w);
+          float val = 10.f * Perlin::octave(x, y, z, w);
           val +=
-              std::max(0.0, 10 + sqrt(pow(y, 2.0) + pow(z, 2.0) + pow(w, 2.0)));
+              std::max(0.0, sqrt(pow(y, 2.0) + pow(z, 2.0) + pow(w, 2.0)));
           if (val > 0) {
-            blocks_.emplace(n_coord, n_coord);
-          }
+			  blocks_.emplace(n_coord, Terrain::Block(n_coord, 1));
+		  } else {
+			  blocks_.emplace(n_coord, Terrain::Block(n_coord, 0));
+		  }
         }
       }
     }
@@ -33,9 +47,26 @@ Terrain::Chunk::Chunk(glm::ivec4 c)
 }
 
 Terrain::Block* Terrain::Chunk::GetBlock(glm::ivec4 c) {
-  if (blocks_.count(c) > 0) {
-    return &blocks_.at(c);
-  }
+	if (blocks_.count(c) > 0) {
+		Block selectedBlock = blocks_.at(c);
+		return &selectedBlock;
+	}
+}
+
+std::vector<Terrain::Block*> Terrain::Chunk::GetAllBlocks() {
+	std::vector<Terrain::Block*> outputBlocks;
+	for (int x = 0; x < CHUNK_SIZE; ++x) {
+		for (int y = 0; y < CHUNK_SIZE; ++y) {
+			for (int z = 0; z < CHUNK_SIZE; ++z) {
+				for (int w = 0; w < CHUNK_SIZE; ++w) {
+					glm::ivec4 n_coord(x, y, z, w);
+					n_coord += ref_;
+					outputBlocks.push_back(&blocks_.at(n_coord));
+				}
+			}
+		}
+	}
+	return outputBlocks;
 }
 
 Terrain::Block* Terrain::GetBlock(glm::ivec4 c) {

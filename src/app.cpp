@@ -60,19 +60,12 @@
 #define WINDOW_HEIGHT 720
 #define DEBUG_REREAD 0
 
-// Prepare the actual values of input mesh data.
-// Some preconfigured testing scenes are available in shapes.h.
-std::vector<glm::vec4> MESH_CENTERS = BLOCK_SCENARIO;
-
-// Set to 64 for wire mesh, 144 for closed figure.
-int N_VERTICES = 144;
-int N_MESHES = MESH_CENTERS.size();
-
 /*
  *	Create the app and assign default values to several field variables.
  */
-App::App()
-    : n_last_semaphore_used_(0),
+App::App(std::vector<Terrain::Block*> blocks)
+    : blocks_(blocks),
+	  n_last_semaphore_used_(0),
       n_swapchain_images_(N_SWAPCHAIN_IMAGES),
       prev_time(std::chrono::steady_clock::now()) {}
 
@@ -84,6 +77,7 @@ App::App()
  https://github.com/GPUOpen-LibrariesAndSDKs/Anvil/blob/master/examples/PushConstants
  */
 void App::init() {
+	init_meshes();
   init_vulkan();
   init_window();
   init_swapchain();
@@ -109,6 +103,29 @@ void App::init() {
 
   printf("s10\n");
   init_camera();
+}
+
+/*
+ *	MESH INITIALIZATION.
+ *	Initialize the vector of tesseract centers given the input terrain data.
+ */
+
+// Prepare the actual values of input mesh data.
+// Some preconfigured testing scenes are available in shapes.h.
+std::vector<glm::vec4> MESH_CENTERS;
+
+// Set to 64 for wire mesh, 144 for closed figure.
+int N_VERTICES = 144;
+int N_MESHES = 0;
+
+void App::init_meshes() {
+	for (int i = 0; i < blocks_.size(); i++) {
+		Terrain::Block* block = blocks_.at(i);
+		if (block->GetType() > 0) {
+			MESH_CENTERS.push_back(block->GetPos());
+		}
+	}
+	N_MESHES = MESH_CENTERS.size();
 }
 
 /*
@@ -548,7 +565,10 @@ void App::init_shaders() {
 
   vertex_shader_ptr->add_definition_value_pair("N_VERTICES_PER_SINE",
 	  N_VERTICES_PER_SINE);*/
+  printf("Attempting to transmit N_MESHES: %d\n", N_MESHES);
   compute_shader_ptr->add_definition_value_pair("N_MESHES", N_MESHES);
+  compute_shader_ptr->add_definition_value_pair("N_MESHES_X", std::min(N_MESHES, 1024));
+  compute_shader_ptr->add_definition_value_pair("N_MESHES_Y", 1 + (N_MESHES / 1024));
   vertex_shader_ptr->add_definition_value_pair("N_MESHES", N_MESHES);
   compute_shader_ptr->add_definition_value_pair("N_VERTICES", N_VERTICES);
   vertex_shader_ptr->add_definition_value_pair("N_VERTICES", N_VERTICES);
