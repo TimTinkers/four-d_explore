@@ -1,7 +1,7 @@
 #version 430
 
 layout(location = 0) in vec4 in_color;
-layout(location = 0) out vec4 vs_color;
+//layout(location = 0) out vec4 vs_color;
 
 layout(set = 0, binding = 0) buffer cubeOutputVertices {
   vec4 vertex_out[N_MESHES * N_VERTICES];
@@ -9,8 +9,5 @@ layout(set = 0, binding = 0) buffer cubeOutputVertices {
 
 void main() {
   vec4 vOut = vertex_out[gl_VertexIndex];
-  //fs_color = vec4(gl_VertexIndex / float(N_MESHES * N_VERTICES), 0, 0, 1);
-  float c = vOut.w;
-  vs_color = vec4(-c, min(-c, c), c, 0) + vec4(1);
-  gl_Position = vec4(vOut.xyz, 1);
+  gl_Position = vOut;
 }
