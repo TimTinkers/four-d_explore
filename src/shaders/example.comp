@@ -74,521 +74,61 @@ void main() {
   // that.
   // Otherwise output full triangles for a closed figure.
   if (N_VERTICES == 64) {
+
+	// Organize the edges into line pairs.
+    int[32][2] edges;
+
     // First cube.
-    vec4 inputPosition = centerPosition + vec4(-0.5, -0.5, 0.5, -0.5);
-    vec4 outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    float w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 0] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(-0.5, -0.5, 0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 1] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(-0.5, -0.5, 0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 2] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(-0.5, 0.5, 0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 3] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(-0.5, 0.5, 0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 4] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(-0.5, 0.5, 0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 5] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(-0.5, 0.5, 0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 6] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(-0.5, -0.5, 0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 7] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(-0.5, -0.5, 0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 8] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, -0.5, 0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 9] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(-0.5, 0.5, 0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 10] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, 0.5, 0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 11] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(-0.5, 0.5, 0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 12] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, 0.5, 0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 13] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(-0.5, -0.5, 0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 14] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, -0.5, 0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 15] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, -0.5, 0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 16] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, 0.5, 0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 17] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, 0.5, 0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 18] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, 0.5, 0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 19] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, 0.5, 0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 20] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, -0.5, 0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 21] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, -0.5, 0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 22] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, -0.5, 0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 23] =
-        outputPosition;
+    edges[ 0] = int[2]( 8, 11);
+	edges[ 1] = int[2](11, 13);
+	edges[ 2] = int[2](13, 10);
+	edges[ 3] = int[2](10,  8);
+	edges[ 4] = int[2]( 8,  9);
+	edges[ 5] = int[2](10, 12);
+	edges[ 6] = int[2](13, 15);
+	edges[ 7] = int[2](11, 14);
+	edges[ 8] = int[2](14, 15);
+	edges[ 9] = int[2](15, 12);
+	edges[10] = int[2](12,  9);
+	edges[11] = int[2]( 9, 14);
 
     // Second cube.
-    inputPosition = centerPosition + vec4(-0.5, -0.5, -0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 24] =
-        outputPosition;
+    edges[12] = int[2](0, 3);
+	edges[13] = int[2](3, 5);
+	edges[14] = int[2](5, 2);
+	edges[15] = int[2](2, 0);
+	edges[16] = int[2](0, 1);
+	edges[17] = int[2](2, 4);
+	edges[18] = int[2](5, 7);
+	edges[19] = int[2](3, 6);
+	edges[20] = int[2](6, 7);
+	edges[21] = int[2](7, 4);
+	edges[22] = int[2](4, 1);
+	edges[23] = int[2](1, 6);
 
-    inputPosition = centerPosition + vec4(-0.5, -0.5, -0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 25] =
-        outputPosition;
+    // Linking edges.
+    edges[24] = int[2]( 8, 0);
+	edges[25] = int[2]( 9, 1);
+	edges[26] = int[2](10, 2);
+	edges[27] = int[2](11, 3);
+	edges[28] = int[2](12, 4);
+	edges[29] = int[2](13, 5);
+	edges[30] = int[2](14, 6);
+	edges[31] = int[2](15, 7);
 
-    inputPosition = centerPosition + vec4(-0.5, -0.5, -0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 26] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(-0.5, 0.5, -0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 27] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(-0.5, 0.5, -0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 28] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(-0.5, 0.5, -0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 29] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(-0.5, 0.5, -0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 30] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(-0.5, -0.5, -0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 31] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(-0.5, -0.5, -0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 32] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, -0.5, -0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 33] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(-0.5, 0.5, -0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 34] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, 0.5, -0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 35] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(-0.5, 0.5, -0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 36] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, 0.5, -0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 37] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(-0.5, -0.5, -0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 38] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, -0.5, -0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 39] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, -0.5, -0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 40] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, 0.5, -0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 41] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, 0.5, -0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 42] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, 0.5, -0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 43] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, 0.5, -0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 44] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, -0.5, -0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 45] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, -0.5, -0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 46] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, -0.5, -0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 47] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(-0.5, -0.5, 0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 48] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(-0.5, -0.5, -0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 49] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(-0.5, -0.5, 0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 50] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(-0.5, -0.5, -0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 51] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(-0.5, 0.5, 0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 52] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(-0.5, 0.5, -0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 53] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(-0.5, 0.5, 0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 54] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(-0.5, 0.5, -0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 55] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, -0.5, 0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 56] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, -0.5, -0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 57] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, 0.5, 0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 58] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, 0.5, -0.5, 0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 59] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, 0.5, 0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 60] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, 0.5, -0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 61] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, -0.5, 0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 62] =
-        outputPosition;
-
-    inputPosition = centerPosition + vec4(0.5, -0.5, -0.5, -0.5);
-    outputPosition = viewProj.main_mat * inputPosition + viewProj.column;
-    w = abs(dot(viewProj.row, inputPosition) + viewProj.ww);
-    outputPosition = outputPosition / vec4(w);
-    outputPosition.zw = outputPosition.wz;
-    outputMeshVertices.data[current_invocation_id * N_VERTICES + 63] =
-        outputPosition;
-        
+    // Iterate through each arrangement and insert the two points representing
+    // the edge endpoints.
+    for (int i = 0; i < 32; i++) {
+      int[2] edge = edges[i];
+      for (int j = 0; j < 2; j++) {
+        int geometryIndex = edge[j];
+        outputMeshVertices
+            .data[current_invocation_id * N_VERTICES + (i * 2) + j] =
+            geoOut[geometryIndex];
+      }
+    }        
   } else {
+
     // Organize the faces into triangle pairs.
     int[24][6] faces;
 
@@ -623,8 +163,7 @@ void main() {
     faces[23] = int[6](6, 7, 15, 6, 15, 14);
 
     // Iterate through each arrangement and insert the six points representing
-    // the
-    // two triangles.
+    // the two triangles.
     for (int i = 0; i < 24; i++) {
       int[6] face = faces[i];
       for (int j = 0; j < 6; j++) {
