@@ -54,23 +54,25 @@ void Camera::UpdateProj() {
       mat5::perspective(fovy_, aspectX_, aspectW_, zNear_, zFar_);
 }
 
+#define SENSITIVITY 2
+
 void Camera::RotateUp(float amount) {
-  mat5 rot = mat5::rotate(1, 3, amount);
+  mat5 rot = mat5::rotate(1, 3, SENSITIVITY * amount);
   view_matrix_ = rot * view_matrix_;
 }
 
 void Camera::RotateDown(float amount) {
-  mat5 rot = mat5::rotate(1, 3, -amount);
+  mat5 rot = mat5::rotate(1, 3, SENSITIVITY * -amount);
   view_matrix_ = rot * view_matrix_;
 }
 
 void Camera::RotateRight(float amount) {
-  mat5 rot = mat5::rotate(0, 3, -amount);
+  mat5 rot = mat5::rotate(0, 3, SENSITIVITY * -amount);
   view_matrix_ = rot * view_matrix_;
 }
 
 void Camera::RotateLeft(float amount) {
-  mat5 rot = mat5::rotate(0, 3, amount);
+  mat5 rot = mat5::rotate(0, 3, SENSITIVITY * amount);
   view_matrix_ = rot * view_matrix_;
 }
 

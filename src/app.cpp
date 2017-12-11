@@ -50,6 +50,8 @@
 // Constants.
 #define APP_NAME "Four Dimensional Exploration"
 #define DEBUG_REREAD 0
+#define DEBUG_FRAME_TIME 0
+#define DEBUG_BAKE_TIME 1
 
 /*
  *	Create the app and assign default values to several field variables.
@@ -620,11 +622,19 @@ void App::init_compute_pipelines() {
 	result = compute_manager_ptr->set_pipeline_dsg(compute_pipeline_id_,
 		compute_dsg_ptr_);
 	anvil_assert(result);
-	printf("ic2\n");
 
+	printf("Baking meshes...\n");
+	if (!DEBUG_FRAME_TIME && DEBUG_BAKE_TIME) {
+		prev_time = std::chrono::steady_clock::now();
+	}
 	result = compute_manager_ptr->bake();
 	anvil_assert(result);
-	printf("ic3\n");
+	if (!DEBUG_FRAME_TIME && DEBUG_BAKE_TIME) {
+		auto cur_time = std::chrono::steady_clock::now();
+		std::chrono::duration<double, std::milli> dif = cur_time - prev_time;
+		std::cout << "Baked in " << dif.count() << "ms.\n";
+		prev_time = cur_time;
+	}
 }
 
 /*
@@ -1049,7 +1059,6 @@ void App::init_camera() {
 	glfwSetMouseButtonCallback(GetGLFWWindow(), Callback::on_mouse_button_event);
 	glfwSetCursorPosCallback(GetGLFWWindow(), Callback::on_mouse_move_event);
 	glfwSetScrollCallback(GetGLFWWindow(), Callback::on_mouse_scroll_event);
-
 	glfwSetInputMode(GetGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
@@ -1089,8 +1098,8 @@ void App::handle_keys() {
 			break;
 		}
 	}
-	// KEEP for debugging
 
+	// KEEP for debugging
 	// std::cout << "\n";
 	// mat5 view = camera_.GetViewProj();
 	// (view * vec5(1, 1, 1, 1, 1)).Print();
@@ -1114,6 +1123,7 @@ void App::handle_keys() {
 	// std::cout << "\n";
 }
 
+// Toggles between drawing a solid envelope or a wireframe shape.
 void App::ToggleRenderMode() {
 	printf("Toggling render mode.\n");
 	if (N_VERTICES == 144) {
@@ -1344,10 +1354,12 @@ void App::run() { //window_ptr_->run();
 	while (!ShouldQuit()) {
 		glfwPollEvents();
 		draw_frame(this);
-		auto cur_time = std::chrono::steady_clock::now();
-		std::chrono::duration<double, std::milli> dif = cur_time - prev_time;
-		// std::cout << dif.count() << "\n";
-		prev_time = cur_time;
+		if (DEBUG_FRAME_TIME && !DEBUG_BAKE_TIME) {
+			auto cur_time = std::chrono::steady_clock::now();
+			std::chrono::duration<double, std::milli> dif = cur_time - prev_time;
+			std::cout << dif.count() << "\n";
+			prev_time = cur_time;
+		}
 		handle_keys();
 	}
 	DestroyWindow();
