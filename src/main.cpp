@@ -1,70 +1,93 @@
+// Imports.
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "GLFW/glfw3.h"
-
 #include <fstream>
 #include <iostream>
 #include <memory>
 #include <string>
 #include <streambuf>
 #include <sstream>
-
 #include "matrix.h"
 #include "app.h"
-
 #include "terrain.h"
 #include "perlin.h"
 
-int main() {
-  // Test Perlin noise generation.
+using namespace std;
 
-  
-  /*bool hasMin = false;
-  bool hasMax = false;
-  float minValue = 0;
-  float maxValue = 0;
-  for (int x = 0; x < 16 * 4; ++x) {
-    printf("x-layer: %d\n", x);
-    for (int y = 0; y < 16 * 4; ++y) {
-      for (int z = 0; z < 16 * 4; ++z) {
-        for (int w = 0; w < 16 * 4; ++w) {
-          float val = Perlin::octave(x, y, z, w);
-          if (!hasMin || val < minValue) {
-            minValue = val;
-            hasMin = true;
-          }
-          if (!hasMax || val > maxValue) {
-            maxValue = val;
-            hasMax = true;
-          }
-        }
-      }
-    }
-  }
-  printf("Perlin min: %f, max: %f\n", minValue, maxValue);
-  //std::cout << GL_MAX_COMPUTE_WORK_GROUP_SIZE << "\n";
-  return 0;*/
+// Main entry-point of the visualizer.
+int main(int argc, char* argv[]) {
 
-  Terrain::Chunk c(glm::ivec4(0), 0.5f, 2.0f);
-  std::vector<Terrain::Block*> blocks = c.GetAllBlocks();
+	if (argc < 4) {
+		cout << "Use: " << argv[0] 
+			 << " <Width> <Height> <Scene File | PERLIN> [persistence] [frequency] [x size] [y size] [z size] [w size]\n";
+	} else {
 
-  for (int i = 0; i < blocks.size(); i++) {
-    Terrain::Block* block = blocks.at(i);
-    glm::ivec4 blockPos = block->GetPos();
-    /*if (block->GetType() > 0) {
-      printf("Block pos: %d, %d, %d, %d\n", blockPos.x, blockPos.y, blockPos.z,
-             blockPos.w);
-    } else {
-      printf("Empty pos: %d, %d, %d, %d\n", blockPos.x, blockPos.y, blockPos.z,
-             blockPos.w);
-    }*/
-  }
+		// Retrieve the window dimensions.
+		int width = atoi(argv[1]);
+		int height = atoi(argv[2]);
 
-  std::shared_ptr<App> app_ptr(new App(blocks));
-  app_ptr->init();
-  printf("Initialized. Running...\n");
-  app_ptr->run();
-  printf("Run function completed.\n");
+		// Retrieve the scene to render.
+		char* scene = argv[3];
+		if (!strcmp(scene, "PERLIN")) {
 
-  return 0;
+			// If the user requests perlin noise, create a new scene for them.
+			cout << "Generating perlin noise for scene.\n";
+
+			// Retrieve various perlin parameters if they were given.
+			float persistence = 0.5f;
+			if (argc >= 5) {
+				persistence = atof(argv[4]);
+			}
+			float frequency = 2.0f;
+			if (argc >= 6) {
+				frequency = atof(argv[5]);
+			}
+			int xSize = 12;
+			if (argc >= 7) {
+				xSize = atoi(argv[6]);
+			}
+			int ySize = 12;
+			if (argc >= 8) {
+				ySize = atoi(argv[7]);
+			}
+			int zSize = 12;
+			if (argc >= 9) {
+				zSize = atoi(argv[8]);
+			}
+			int wSize = 12;
+			if (argc >= 10) {
+				wSize = atoi(argv[9]);
+			}
+
+			// Generate the terrain.
+			Terrain::Chunk c(glm::ivec4(xSize, ySize, wSize, zSize), persistence, frequency);
+			std::vector<Terrain::Block*> blocks = c.GetAllBlocks();
+
+			// Initialize the app.
+			std::shared_ptr<App> app_ptr(new App(width, height, blocks));
+			app_ptr->init();
+			printf("Initialized. Running...\n");
+
+			// Run the app.
+			app_ptr->run();
+			printf("Run function completed.\n");
+		} else {
+
+			// We assume argv[1] is a filename to open
+			ifstream the_file(argv[1]);
+			// Always check to see if file opening succeeded
+			if (!the_file.is_open())
+				cout << "Could not open file\n";
+			else {
+				char x;
+				// the_file.get ( x ) returns false if the end of the file
+				//  is reached or an error occurs
+				while (the_file.get(x))
+					cout << x;
+			}
+			// the_file is closed implicitly here
+		}
+	}
+	return 0;
 }
