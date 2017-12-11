@@ -117,19 +117,28 @@ int main(int argc, char* argv[]) {
 			printf("Run function completed.\n");
 		} else {
 
-			// We assume argv[1] is a filename to open
-			ifstream the_file(argv[1]);
-			// Always check to see if file opening succeeded
-			if (!the_file.is_open())
-				cout << "Could not open file\n";
-			else {
-				char x;
-				// the_file.get ( x ) returns false if the end of the file
-				//  is reached or an error occurs
-				while (the_file.get(x))
-					cout << x;
+			// The user specified a file to read existing data from.
+			ifstream meshData(scene);
+			if (!meshData.is_open()) {
+				cout << "Could not read \"" << scene << "\"\n";
+			}  else {
+				
+				// Parse the terrain.
+				std::vector<Terrain::Block*> blocks;
+				int x, y, z, w;
+				while (meshData >> x >> y >> w >> z) {
+					blocks.push_back(new Terrain::Block(glm::ivec4(x, y, z, w), 1));
+				}
+
+				// Initialize the app.
+				std::shared_ptr<App> app_ptr(new App(width, height, blocks));
+				app_ptr->init();
+				printf("Initialized. Running...\n");
+
+				// Run the app.
+				app_ptr->run();
+				printf("Run function completed.\n");
 			}
-			// the_file is closed implicitly here
 		}
 	}
 	return 0;

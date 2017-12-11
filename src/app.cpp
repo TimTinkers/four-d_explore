@@ -36,7 +36,6 @@
 #include "matrix.h"
 #include "callback.h"
 #include "glm/gtc/matrix_transform.hpp"
-#include "shapes.h"
 #ifdef _WIN32
 #define GLFW_EXPOSE_NATIVE_WIN32
 #else
@@ -56,8 +55,8 @@
  *	Create the app and assign default values to several field variables.
  */
 App::App(int width, int height, std::vector<Terrain::Block*> blocks)
-	: windowWidth_(width), 
-	windowHeight_(height), 
+	: windowWidth_(width),
+	windowHeight_(height),
 	blocks_(blocks),
 	n_last_semaphore_used_(0),
 	n_swapchain_images_(N_SWAPCHAIN_IMAGES),
@@ -290,31 +289,7 @@ void App::init_buffers() {
 	outputCubeVerticesBufferPointer_->set_name("Cube output vertices");
 	memory_allocator_ptr->add_buffer(outputCubeVerticesBufferPointer_, 0);
 
-	// END NEW.
-
-	/*
-	// We also need some space for a uniform block which is going to hold time
-	// info.
-	const auto dynamic_ub_alignment_requirement =
-		device_ptr_.lock()
-			->get_physical_device_properties()
-			.limits.minUniformBufferOffsetAlignment;
-	const auto localTimeUniformSizePerSwapchain =
-		Anvil::Utils::round_up(sizeof(float), dynamic_ub_alignment_requirement);
-	const auto sine_props_data_buffer_size_total =
-		localTimeUniformSizePerSwapchain * N_SWAPCHAIN_IMAGES;
-	timeUniformSizePerSwapchain = localTimeUniformSizePerSwapchain;
-
-	// Create the layout buffer for storing time in the compute shader.
-	timeUniformPointer = Anvil::Buffer::create_nonsparse(
-		device_ptr_, sine_props_data_buffer_size_total,
-		Anvil::QUEUE_FAMILY_COMPUTE_BIT | Anvil::QUEUE_FAMILY_GRAPHICS_BIT,
-		VK_SHARING_MODE_CONCURRENT, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
-	timeUniformPointer->set_name("Time data buffer");
-	memory_allocator_ptr->add_buffer(timeUniformPointer,
-									 Anvil::MEMORY_FEATURE_FLAG_MAPPABLE);
-	*/
-
+	// Find size for sroting the 4D view matrix.
 	const auto dynamic_ub_alignment_requirement =
 		device_ptr_.lock()
 		->get_physical_device_properties()
@@ -335,6 +310,7 @@ void App::init_buffers() {
 	memory_allocator_ptr->add_buffer(viewProjUniformPointer,
 		Anvil::MEMORY_FEATURE_FLAG_MAPPABLE);
 
+	// Create the layout buffer for storing viewMatrix in the compute shader.
 	viewMatrixUniformPointer = Anvil::Buffer::create_nonsparse(
 		device_ptr_, mat5_data_buffer_size_total,
 		Anvil::QUEUE_FAMILY_COMPUTE_BIT | Anvil::QUEUE_FAMILY_GRAPHICS_BIT,
@@ -343,7 +319,6 @@ void App::init_buffers() {
 	memory_allocator_ptr->add_buffer(viewMatrixUniformPointer,
 		Anvil::MEMORY_FEATURE_FLAG_MAPPABLE);
 
-	// NEW: cube.
 	// Assign memory blocks to cube input vertices buffer and fill with values.
 	inputCubeBufferPointer_->write(0, inputCubeBufferPointer_->get_size(),
 		inputCubeBufferValues.get());
@@ -1248,15 +1223,7 @@ void App::draw_frame(void* app_raw_ptr) {
 	n_swapchain_image = app_ptr->swapchain_ptr_->acquire_image(
 		curr_frame_wait_semaphore_ptr, true);
 
-	// Update time value, used by the generator compute shader.
-	/*const uint64_t time_msec = app_ptr->m_time.get_time_in_msec();
-	const float t = time_msec / 1000.0f;
-	app_ptr->timeUniformPointer->write(
-		app_ptr->timeUniformSizePerSwapchain * n_swapchain_image,  // Offset.
-		sizeof(float),                                             // Size.
-		&t);*/
-
-		// Update View Proj matrix,
+	// Update View Proj matrix,
 	mat5 viewProj = app_ptr->camera_.GetViewProj();
 	app_ptr->viewProjUniformPointer->write(
 		app_ptr->mat5UniformSizePerSwapchain * n_swapchain_image,  // Offset.
@@ -1379,7 +1346,7 @@ void App::run() { //window_ptr_->run();
 		draw_frame(this);
 		auto cur_time = std::chrono::steady_clock::now();
 		std::chrono::duration<double, std::milli> dif = cur_time - prev_time;
-		std::cout << dif.count() << "\n";
+		// std::cout << dif.count() << "\n";
 		prev_time = cur_time;
 		handle_keys();
 	}
