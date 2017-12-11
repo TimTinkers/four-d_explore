@@ -37,7 +37,7 @@ public:
 
 	class Chunk {
 	public:
-		Chunk(glm::ivec4 c, float persistance, float frequency);
+		Chunk(glm::ivec4 c, float persistance, float frequency, int noiseMode);
 		Block* GetBlock(glm::ivec4 c);
 		std::vector<Block*> GetAllBlocks();
 

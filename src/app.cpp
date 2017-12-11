@@ -640,13 +640,16 @@ void App::init_compute_pipelines() {
 		false, /* allow_derivatives     */
 		*cs_ptr_, &compute_pipeline_id_);
 	anvil_assert(result);
+	printf("ic1\n");
 
 	result = compute_manager_ptr->set_pipeline_dsg(compute_pipeline_id_,
 		compute_dsg_ptr_);
 	anvil_assert(result);
+	printf("ic2\n");
 
 	result = compute_manager_ptr->bake();
 	anvil_assert(result);
+	printf("ic3\n");
 }
 
 /*
