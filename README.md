@@ -10,6 +10,8 @@ The fourth spatial dimension is inherently difficult to visualize. Leveraging th
 
 The implementation relies on compute shaders because vertex and fragment shaders do not readily support the math required to extend into extra dimensions. For this project’s framework we will be using [Anvil](https://github.com/GPUOpen-LibrariesAndSDKs/Anvil/), a wrapper for Vulkan in development by AMD. The application can generate and view voxel scenes made out of tesseracts.
 
+In this visualization, the shades of red and blue are used to denote an object's distance across the w-direction. White means the object is "in front" of the user along this axis.
+
 ### Operation
 
 Currently, this application is only expected to operate properly on Linux platforms. Important Windows paths are currently hardcoded and some functionality is not enabled on the platform.
