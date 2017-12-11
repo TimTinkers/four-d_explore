@@ -59,7 +59,6 @@ class App {
   std::shared_ptr<Anvil::Buffer> mesh_data_buffer_ptr_;
   std::shared_ptr<Anvil::Buffer> comp_data_buffer_ptr_;
   void init_buffers();
-  const unsigned char* get_mesh_data() const;
 
   // Descriptor set group initialization with helpers.
   std::shared_ptr<Anvil::DescriptorSetGroup> dsg_ptr_;
@@ -97,8 +96,7 @@ class App {
   std::shared_ptr<Anvil::Image> depth_images_[N_SWAPCHAIN_IMAGES];
 
   // Command buffer initialization and helpers.
-  std::shared_ptr<Anvil::PrimaryCommandBuffer>
-      command_buffers_[N_SWAPCHAIN_IMAGES];
+  std::shared_ptr<Anvil::PrimaryCommandBuffer> command_buffers_[N_SWAPCHAIN_IMAGES];
   void init_command_buffers();
 
   // Frame validation.
@@ -114,7 +112,6 @@ class App {
   void init_camera();
   void handle_keys();
 
-  // NEW: Cube.
   // Create a pointer to a buffer for storing the output cube vertices.
   VkDeviceSize outputCubeVerticesBufferSize_;
   std::vector<VkDeviceSize> outputCubeVerticesBufferSizes_;

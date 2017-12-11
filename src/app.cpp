@@ -1021,6 +1021,56 @@ void App::ToggleRenderMode() {
     N_VERTICES = 144;
   }
 
+  vkDeviceWaitIdle(device_ptr_.lock()->get_device_vk());
+
+  frame_signal_semaphores_.clear();
+  frame_wait_semaphores_.clear();
+
+  for (uint32_t n_cmd_buffer = 0; 
+	   n_cmd_buffer < sizeof(command_buffers_) / sizeof(command_buffers_[0]);
+	   ++n_cmd_buffer) {
+	  command_buffers_[n_cmd_buffer] = nullptr;
+  }
+
+  for (uint32_t n_depth_image = 0;
+	   n_depth_image < sizeof(depth_images_) / sizeof(depth_images_[0]);
+	   ++n_depth_image) {
+	  depth_images_[n_depth_image] = nullptr;
+  }
+
+  for (uint32_t n_depth_image_view = 0;
+	   n_depth_image_view < sizeof(depth_image_views_) / sizeof(depth_image_views_[0]);
+	   ++n_depth_image_view) {
+	  depth_image_views_[n_depth_image_view] = nullptr;
+  }
+
+  for (uint32_t n_fbo = 0;
+	   n_fbo < sizeof(fbos_) / sizeof(fbos_[0]);
+	   ++n_fbo) {
+	  fbos_[n_fbo] = nullptr;
+  }
+
+  dsg_ptr_.reset();
+  fs_ptr_.reset();
+  renderpass_ptr_.reset();
+  vs_ptr_.reset();
+  cs_ptr_.reset();
+  compute_dsg_ptr_.reset();
+  data_buffer_ptr_.reset();
+  mesh_data_buffer_ptr_.reset();
+  comp_data_buffer_ptr_.reset();
+
+  //present_queue_ptr_.reset();
+  //rendering_surface_ptr_.reset();
+  //swapchain_ptr_.reset();
+  //window_ptr_.reset();
+
+  //device_ptr_.lock()->destroy();
+  //device_ptr_.reset();
+
+  //instance_ptr_->destroy();
+  //instance_ptr_.reset();
+
   // Reinitialize rendering with new settings.
   // init_vulkan();
   // init_window();

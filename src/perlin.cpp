@@ -14,11 +14,10 @@ float Perlin::noise(int x, int y, int z, int w) {
 // between values.
 float Perlin::perlin(int x, int y, int z, int w) { return noise(x, y, z, w); }
 
-float Perlin::octave(int x, int y, int z, int w) {
+float Perlin::octave(int x, int y, int z, int w, float persistance, float frequency) {
   float total = 0.0f;
-  float persistance = 0.5f;
   for (int i = 0; i < 8; ++i) {
-    int freq = (int)pow(2.0f, i);
+    int freq = (int)pow(frequency, i);
     float amplitude = pow(persistance, i);
     total += perlin(x * freq, y * freq, z * freq, w * freq) * amplitude;
   }

@@ -22,14 +22,14 @@ int Terrain::Block::GetType() { return type_; }
  *	Generate a single 4D chunk of terrain using Perlin noise.
  *	The chunk is rooted at the given coordinates.
  */
-Terrain::Chunk::Chunk(glm::ivec4 c) : ref_(c) {
+Terrain::Chunk::Chunk(glm::ivec4 c, float persistance, float frequency) : ref_(c) {
   for (int x = 0; x < CHUNK_SIZE; ++x) {
     for (int y = 0; y < CHUNK_SIZE; ++y) {
       for (int z = 0; z < CHUNK_SIZE; ++z) {
         for (int w = 0; w < CHUNK_SIZE; ++w) {
           glm::ivec4 n_coord(x, y, z, w);
           n_coord += ref_;
-          float val = Perlin::octave(x, y, z, w);
+          float val = Perlin::octave(x, y, z, w, persistance, frequency);
           val += std::max(0.0,
                           5.0 - sqrt(pow(y, 2.0) + pow(z, 2.0) + pow(w, 2.0)));
           if (val > 0) {
@@ -76,9 +76,9 @@ Terrain::Block* Terrain::GetBlock(glm::ivec4 c) {
   }
 }
 
-void Terrain::GenChunk(glm::ivec4 ref) {
+void Terrain::GenChunk(glm::ivec4 ref, float persistance, float frequency) {
   if (chunks_.count(ref) > 0) {
-    chunks_.emplace(ref, ref);
+    chunks_.emplace(ref, Terrain::Chunk(ref, persistance, frequency));
   }
 }
 

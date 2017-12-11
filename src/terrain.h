@@ -46,7 +46,7 @@ class Terrain {
 
   class Chunk {
    public:
-    Chunk(glm::ivec4 c);
+    Chunk(glm::ivec4 c, float persistance, float frequency);
     Block* GetBlock(glm::ivec4 c);
     std::vector<Block*> GetAllBlocks();
 
@@ -55,7 +55,7 @@ class Terrain {
     glm::ivec4 ref_;
   };
 
-  void GenChunk(glm::ivec4 c);
+  void GenChunk(glm::ivec4 c, float persistance, float frequency);
   Block* GetBlock(glm::ivec4 c);
 
  private:

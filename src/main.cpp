@@ -45,7 +45,7 @@ int main() {
   //std::cout << GL_MAX_COMPUTE_WORK_GROUP_SIZE << "\n";
   return 0;*/
 
-  Terrain::Chunk c(glm::ivec4(0));
+  Terrain::Chunk c(glm::ivec4(0), 0.5f, 2.0f);
   std::vector<Terrain::Block*> blocks = c.GetAllBlocks();
 
   for (int i = 0; i < blocks.size(); i++) {
