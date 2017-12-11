@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
 
 	if (argc < 4) {
 		cout << "Use: " << argv[0] 
-			 << " <Width> <Height> <Scene File | PERLIN | SIMPLEX> [persistence] [frequency] [x size] [y size] [z size] [w size]\n";
+			 << " <Width> <Height> <Scene File | PERLIN | OPENSIMPLEX> [persistence] [frequency] [x size] [y size] [z size] [w size]\n";
 	} else {
 
 		// Retrieve the window dimensions.
