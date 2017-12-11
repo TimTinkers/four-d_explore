@@ -3,7 +3,7 @@
 // Takes in a time value, a view projection, a number of vertices, a number of
 // meshes, and a buffer of mesh center coordinates.
 // Populates a buffer of output vertices to render.
-layout(local_size_x = 512, local_size_y = 1, local_size_z = 1) in;
+layout(local_size_x = 512) in;
 
 // A uniform value representing the time.
 // layout(set = 0, binding = 0) uniform timeUniform { float time; };
@@ -24,7 +24,6 @@ layout(set = 1, binding = 0) buffer inputCenterCoordinates {
 // The output buffer to populate with mesh output points.
 layout(set = 1, binding = 1) buffer outputVertices {
   vec4 data[N_MESHES * N_VERTICES];
-  float w[N_MESHES * N_VERTICES];
 } outputMeshVertices;
 
 // The actual computation.

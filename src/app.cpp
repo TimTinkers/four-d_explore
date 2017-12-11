@@ -77,7 +77,7 @@ App::App(std::vector<Terrain::Block*> blocks)
  https://github.com/GPUOpen-LibrariesAndSDKs/Anvil/blob/master/examples/PushConstants
  */
 void App::init() {
-	init_meshes();
+  init_meshes();
   init_vulkan();
   init_window();
   init_swapchain();
@@ -239,7 +239,7 @@ void App::init_buffers() {
   // Create the layout buffer for storing the input cube vertices.
   inputCubeBufferPointer_ = Anvil::Buffer::create_nonsparse(
       device_ptr_, totalInputCubeBufferSize_,
-      Anvil::QUEUE_FAMILY_COMPUTE_BIT | Anvil::QUEUE_FAMILY_GRAPHICS_BIT,
+      Anvil::QUEUE_FAMILY_COMPUTE_BIT,
       VK_SHARING_MODE_CONCURRENT, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
   inputCubeBufferPointer_->set_name("Cube input vertices");
   memory_allocator_ptr->add_buffer(inputCubeBufferPointer_, 0);
@@ -331,13 +331,21 @@ void App::init_buffers() {
       localMat5UniformSizePerSwapchain * N_SWAPCHAIN_IMAGES;
   mat5UniformSizePerSwapchain = localMat5UniformSizePerSwapchain;
 
-  // Create the layout buffer for storing time in the compute shader.
+  // Create the layout buffer for storing viewProj in the compute shader.
   viewProjUniformPointer = Anvil::Buffer::create_nonsparse(
       device_ptr_, mat5_data_buffer_size_total,
-      Anvil::QUEUE_FAMILY_COMPUTE_BIT | Anvil::QUEUE_FAMILY_GRAPHICS_BIT,
+      Anvil::QUEUE_FAMILY_COMPUTE_BIT,
       VK_SHARING_MODE_CONCURRENT, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
   viewProjUniformPointer->set_name("View Proj data buffer");
   memory_allocator_ptr->add_buffer(viewProjUniformPointer,
+                                   Anvil::MEMORY_FEATURE_FLAG_MAPPABLE);
+
+  viewMatrixUniformPointer = Anvil::Buffer::create_nonsparse(
+      device_ptr_, mat5_data_buffer_size_total,
+      Anvil::QUEUE_FAMILY_GRAPHICS_BIT,
+      VK_SHARING_MODE_CONCURRENT, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+  viewMatrixUniformPointer->set_name("View Matrix data buffer");
+  memory_allocator_ptr->add_buffer(viewMatrixUniformPointer,
                                    Anvil::MEMORY_FEATURE_FLAG_MAPPABLE);
 
   // NEW: cube.
@@ -423,6 +431,15 @@ void App::init_dsgs() {
       Anvil::DescriptorSet::StorageBufferBindingElement(
           outputCubeVerticesBufferPointer_, 0, /* in_start_offset */
           sizeof(float) * 4 * N_MESHES * N_VERTICES));
+
+  axis_dsg_ptr_ = Anvil::DescriptorSetGroup::create(device_ptr_, false, 1);
+  axis_dsg_ptr_->add_binding(0, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
+                             VK_SHADER_STAGE_VERTEX_BIT);
+
+  axis_dsg_ptr_->set_binding_item(
+      0, 0, Anvil::DescriptorSet::UniformBufferBindingElement(
+                viewMatrixUniformPointer, 0,
+                mat5UniformSizePerSwapchain));
 }
 
 /*
@@ -507,6 +524,18 @@ void App::init_shaders() {
   std::string vertex{std::istreambuf_iterator<char>(infileVertex),
                      std::istreambuf_iterator<char>()};
 
+// Read the vertex shader from a separate file.
+// If running on Windows, assume it's Tim's machine and resolve this hacky path
+// garbage.
+#ifdef _WIN32
+  std::ifstream infileVertex2{
+      "E:\\Penn 17 - 18\\CIS 565\\four-d_explore\\src\\shaders\\axes.vert"};
+#else
+  std::ifstream infileVertex2{"../src/shaders/axes.vert"};
+#endif
+  std::string vertex2{std::istreambuf_iterator<char>(infileVertex2),
+                      std::istreambuf_iterator<char>()};
+
 // Read the fragment shader from a separate file.
 // If running on Windows, assume it's Tim's machine and resolve this hacky path
 // garbage.
@@ -543,6 +572,8 @@ void App::init_shaders() {
   std::shared_ptr<Anvil::ShaderModule> fragment_shader_module_ptr;
   std::shared_ptr<Anvil::GLSLShaderToSPIRVGenerator> vertex_shader_ptr;
   std::shared_ptr<Anvil::ShaderModule> vertex_shader_module_ptr;
+  std::shared_ptr<Anvil::GLSLShaderToSPIRVGenerator> axis_shader_ptr;
+  std::shared_ptr<Anvil::ShaderModule> axis_shader_module_ptr;
   std::shared_ptr<Anvil::GLSLShaderToSPIRVGenerator> geo_shader_ptr;
   std::shared_ptr<Anvil::ShaderModule> geo_shader_module_ptr;
 
@@ -552,6 +583,9 @@ void App::init_shaders() {
   vertex_shader_ptr = Anvil::GLSLShaderToSPIRVGenerator::create(
       device_ptr_, Anvil::GLSLShaderToSPIRVGenerator::MODE_USE_SPECIFIED_SOURCE,
       vertex, Anvil::SHADER_STAGE_VERTEX);
+  axis_shader_ptr = Anvil::GLSLShaderToSPIRVGenerator::create(
+      device_ptr_, Anvil::GLSLShaderToSPIRVGenerator::MODE_USE_SPECIFIED_SOURCE,
+      vertex2, Anvil::SHADER_STAGE_VERTEX);
   fragment_shader_ptr = Anvil::GLSLShaderToSPIRVGenerator::create(
       device_ptr_, Anvil::GLSLShaderToSPIRVGenerator::MODE_USE_SPECIFIED_SOURCE,
       fragment, Anvil::SHADER_STAGE_FRAGMENT);
@@ -559,18 +593,7 @@ void App::init_shaders() {
       device_ptr_, Anvil::GLSLShaderToSPIRVGenerator::MODE_USE_SPECIFIED_SOURCE,
       geo, Anvil::SHADER_STAGE_GEOMETRY);
 
-  // compute_shader_ptr->add_definition_value_pair("N_TRIANGLES", N_TRIANGLES);
-  // fragment_shader_ptr->add_definition_value_pair("N_TRIANGLES", N_TRIANGLES);
-  // vertex_shader_ptr->add_definition_value_pair("N_TRIANGLES", N_TRIANGLES);
-
   /* Set up GLSLShader instances */
-  /*compute_shader_ptr->add_definition_value_pair("N_SINE_PAIRS",
-	  N_SINE_PAIRS);
-  compute_shader_ptr->add_definition_value_pair("N_VERTICES_PER_SINE",
-	  N_VERTICES_PER_SINE);
-
-  vertex_shader_ptr->add_definition_value_pair("N_VERTICES_PER_SINE",
-	  N_VERTICES_PER_SINE);*/
   printf("Attempting to transmit N_MESHES: %d\n", N_MESHES);
   compute_shader_ptr->add_definition_value_pair("N_MESHES", N_MESHES);
   vertex_shader_ptr->add_definition_value_pair("N_MESHES", N_MESHES);
@@ -583,12 +606,15 @@ void App::init_shaders() {
       device_ptr_, fragment_shader_ptr);
   vertex_shader_module_ptr = Anvil::ShaderModule::create_from_spirv_generator(
       device_ptr_, vertex_shader_ptr);
+  axis_shader_module_ptr = Anvil::ShaderModule::create_from_spirv_generator(
+      device_ptr_, axis_shader_ptr);
   geo_shader_module_ptr = Anvil::ShaderModule::create_from_spirv_generator(
       device_ptr_, geo_shader_ptr);
 
   compute_shader_module_ptr->set_name("Compute shader module");
   fragment_shader_module_ptr->set_name("Fragment shader module");
   vertex_shader_module_ptr->set_name("Vertex shader module");
+  axis_shader_module_ptr->set_name("Axis shader module");
   geo_shader_module_ptr->set_name("Geometry shader module");
 
   cs_ptr_.reset(new Anvil::ShaderModuleStageEntryPoint(
@@ -597,6 +623,8 @@ void App::init_shaders() {
       "main", fragment_shader_module_ptr, Anvil::SHADER_STAGE_FRAGMENT));
   vs_ptr_.reset(new Anvil::ShaderModuleStageEntryPoint(
       "main", vertex_shader_module_ptr, Anvil::SHADER_STAGE_VERTEX));
+  vs_axis_ptr_.reset(new Anvil::ShaderModuleStageEntryPoint(
+      "main", axis_shader_module_ptr, Anvil::SHADER_STAGE_VERTEX));
   ge_ptr_.reset(new Anvil::ShaderModuleStageEntryPoint(
       "main", geo_shader_module_ptr, Anvil::SHADER_STAGE_GEOMETRY));
 }
@@ -618,8 +646,8 @@ void App::init_compute_pipelines() {
       *cs_ptr_, &compute_pipeline_id_);
   anvil_assert(result);
 
-  result = compute_manager_ptr->
-	  set_pipeline_dsg(compute_pipeline_id_, compute_dsg_ptr_);
+  result = compute_manager_ptr->set_pipeline_dsg(compute_pipeline_id_,
+                                                 compute_dsg_ptr_);
   anvil_assert(result);
 
   result = compute_manager_ptr->bake();
@@ -647,17 +675,30 @@ void App::init_gfx_pipelines() {
   Anvil::RenderPassAttachmentID render_pass_color_attachment_id = -1;
   Anvil::RenderPassAttachmentID render_pass_depth_attachment_id = -1;
   Anvil::SubPassID render_pass_subpass_id = -1;
+  Anvil::RenderPassAttachmentID axis_render_pass_color_attachment_id = -1;
+  Anvil::RenderPassAttachmentID axis_render_pass_depth_attachment_id = -1;
+  Anvil::SubPassID axis_render_pass_subpass_id = -1;
 
   renderpass_ptr_ =
       Anvil::RenderPass::create(device_ptr_, swapchain_ptr_);
+  axis_renderpass_ptr_ =
+      Anvil::RenderPass::create(device_ptr_, swapchain_ptr_);
 
   renderpass_ptr_->set_name("Consumer renderpass");
+  axis_renderpass_ptr_->set_name("Axis renderpass");
 
   result = renderpass_ptr_->add_color_attachment(
       swapchain_ptr_->get_image_format(), VK_SAMPLE_COUNT_1_BIT,
       VK_ATTACHMENT_LOAD_OP_CLEAR, VK_ATTACHMENT_STORE_OP_STORE,
       VK_IMAGE_LAYOUT_UNDEFINED, final_layout, false, /* may_alias */
       &render_pass_color_attachment_id);
+  anvil_assert(result);
+
+  result = axis_renderpass_ptr_->add_color_attachment(
+      swapchain_ptr_->get_image_format(), VK_SAMPLE_COUNT_1_BIT,
+      VK_ATTACHMENT_LOAD_OP_LOAD, VK_ATTACHMENT_STORE_OP_STORE,
+      VK_IMAGE_LAYOUT_UNDEFINED, final_layout, false, /* may_alias */
+      &axis_render_pass_color_attachment_id);
   anvil_assert(result);
 
   result = renderpass_ptr_->add_depth_stencil_attachment(
@@ -675,9 +716,17 @@ void App::init_gfx_pipelines() {
 
   result = renderpass_ptr_->add_subpass(
       *fs_ptr_, *ge_ptr_,                   /* geometry_shader */
+      //Anvil::ShaderModuleStageEntryPoint(),
       Anvil::ShaderModuleStageEntryPoint(), /* tess_control_shader    */
       Anvil::ShaderModuleStageEntryPoint(), /* tess_evaluation_shader */
       *vs_ptr_, &render_pass_subpass_id);
+  anvil_assert(result);
+  result = axis_renderpass_ptr_->add_subpass(
+      *fs_ptr_,
+      Anvil::ShaderModuleStageEntryPoint(),
+      Anvil::ShaderModuleStageEntryPoint(),
+      Anvil::ShaderModuleStageEntryPoint(),
+      *vs_axis_ptr_, &axis_render_pass_subpass_id);
   anvil_assert(result);
 
   result = renderpass_ptr_->add_subpass_color_attachment(
@@ -689,9 +738,19 @@ void App::init_gfx_pipelines() {
       VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
   anvil_assert(result);
 
+  result = axis_renderpass_ptr_->add_subpass_color_attachment(
+      axis_render_pass_subpass_id, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+      axis_render_pass_color_attachment_id, 0, /* location */
+      nullptr); /* opt_attachment_resolve_id_ptr */
+  anvil_assert(result);
+
   /* Set up the graphics pipeline for the main subpass */
   result = renderpass_ptr_->get_subpass_graphics_pipeline_id(
       render_pass_subpass_id, &pipeline_id_);
+  anvil_assert(result);
+
+  result = axis_renderpass_ptr_->get_subpass_graphics_pipeline_id(
+      axis_render_pass_subpass_id, &axis_pipeline_id_);
   anvil_assert(result);
 
   gfx_manager_ptr->add_vertex_attribute(pipeline_id_, 0, /* location */
@@ -700,6 +759,13 @@ void App::init_gfx_pipelines() {
                                         sizeof(float) * 1, /* stride_in_bytes */
                                         VK_VERTEX_INPUT_RATE_INSTANCE);
   gfx_manager_ptr->set_pipeline_dsg(pipeline_id_, dsg_ptr_);
+
+  gfx_manager_ptr->add_vertex_attribute(axis_pipeline_id_, 0, /* location */
+                                        VK_FORMAT_R32G32B32A32_SFLOAT,
+                                        0,                 /* offset_in_bytes */
+                                        sizeof(float) * 1, /* stride_in_bytes */
+                                        VK_VERTEX_INPUT_RATE_INSTANCE);
+  gfx_manager_ptr->set_pipeline_dsg(axis_pipeline_id_, axis_dsg_ptr_);
 
   if (N_VERTICES == 144) {
     gfx_manager_ptr->set_input_assembly_properties(
@@ -717,6 +783,18 @@ void App::init_gfx_pipelines() {
   gfx_manager_ptr->toggle_depth_writes(pipeline_id_, true); /* should_enable */
   gfx_manager_ptr->toggle_dynamic_states(
       pipeline_id_, true, /* should_enable */
+      Anvil::GraphicsPipelineManager::DYNAMIC_STATE_LINE_WIDTH_BIT);
+
+  gfx_manager_ptr->set_input_assembly_properties(
+      axis_pipeline_id_, VK_PRIMITIVE_TOPOLOGY_LINE_LIST);
+  gfx_manager_ptr->set_rasterization_properties(
+      axis_pipeline_id_, VK_POLYGON_MODE_FILL, VK_CULL_MODE_NONE,
+      VK_FRONT_FACE_COUNTER_CLOCKWISE, 10.0f /* line_width */);
+  gfx_manager_ptr->toggle_depth_test(axis_pipeline_id_, false,
+                                     VK_COMPARE_OP_LESS_OR_EQUAL);
+  gfx_manager_ptr->toggle_depth_writes(axis_pipeline_id_, false);
+  gfx_manager_ptr->toggle_dynamic_states(
+      axis_pipeline_id_, true, /* should_enable */
       Anvil::GraphicsPipelineManager::DYNAMIC_STATE_LINE_WIDTH_BIT);
 }
 
@@ -816,12 +894,18 @@ void App::init_command_buffers() {
     }
 
     // Invalidate the shader read cache for this CPU-written data.
-    Anvil::BufferBarrier t_value_buffer_barrier = Anvil::BufferBarrier(
+    Anvil::BufferBarrier view_proj_value_buffer_barrier = Anvil::BufferBarrier(
         VK_ACCESS_HOST_WRITE_BIT, VK_ACCESS_UNIFORM_READ_BIT,
         VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
         viewProjUniformPointer,
         n_current_swapchain_image * mat5UniformSizePerSwapchain,
-        sizeof(glm::mat4) + 2 * sizeof(glm::vec4) + sizeof(float));
+        mat5UniformSizePerSwapchain);
+    Anvil::BufferBarrier view_value_buffer_barrier = Anvil::BufferBarrier(
+        VK_ACCESS_HOST_WRITE_BIT, VK_ACCESS_UNIFORM_READ_BIT,
+        VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
+        viewMatrixUniformPointer,
+        n_current_swapchain_image * mat5UniformSizePerSwapchain,
+        mat5UniformSizePerSwapchain);
 
     draw_cmd_buffer_ptr->record_pipeline_barrier(
         VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
@@ -829,7 +913,17 @@ void App::init_command_buffers() {
         0,                        // in_memory_barrier_count
         nullptr,                  // in_memory_barriers_ptr
         1,                        // in_buffer_memory_barrier_count
-        &t_value_buffer_barrier,  // in_buffer_memory_barriers_ptr
+        &view_proj_value_buffer_barrier,  // in_buffer_memory_barriers_ptr
+        0,                        // in_image_memory_barrier_count
+        nullptr);                 // in_image_memory_barriers_ptr
+
+    draw_cmd_buffer_ptr->record_pipeline_barrier(
+        VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+        VK_FALSE,
+        0,                        // in_memory_barrier_count
+        nullptr,                  // in_memory_barriers_ptr
+        1,                        // in_buffer_memory_barrier_count
+        &view_value_buffer_barrier,  // in_buffer_memory_barriers_ptr
         0,                        // in_image_memory_barrier_count
         nullptr);                 // in_image_memory_barriers_ptr
 
@@ -890,9 +984,6 @@ void App::init_command_buffers() {
         clear_values, fbos_[n_current_swapchain_image], render_area,
         renderpass_ptr_, VK_SUBPASS_CONTENTS_INLINE);
     {
-      const float max_line_width = device_ptr_.lock()
-                                       ->get_physical_device_properties()
-                                       .limits.lineWidthRange[1];
       std::shared_ptr<Anvil::DescriptorSet> renderer_dses[] = {
           dsg_ptr_->get_descriptor_set(0)};
       const uint32_t n_renderer_dses =
@@ -926,9 +1017,45 @@ void App::init_command_buffers() {
       draw_cmd_buffer_ptr->record_draw((N_MESHES * N_VERTICES), 1, /* instanceCount */
                                        0,     /* firstVertex   */
                                        0);    /* firstInstance */
+
     }
     draw_cmd_buffer_ptr->record_end_render_pass();
+
     printf("c5\n");
+    draw_cmd_buffer_ptr->record_begin_render_pass(
+        0,
+        nullptr, fbos_[n_current_swapchain_image], render_area,
+        axis_renderpass_ptr_, VK_SUBPASS_CONTENTS_INLINE);
+    {
+      std::shared_ptr<Anvil::DescriptorSet> axis_renderer_dses[] = {
+          axis_dsg_ptr_->get_descriptor_set(0)};
+      const uint32_t n_axis_renderer_dses =
+          sizeof(axis_renderer_dses) / sizeof(axis_renderer_dses[0]);
+
+      std::shared_ptr<Anvil::PipelineLayout> renderer_pipeline_layout_ptr;
+
+      renderer_pipeline_layout_ptr =
+          gfx_pipeline_manager_ptr->get_graphics_pipeline_layout(
+              axis_pipeline_id_);
+
+      draw_cmd_buffer_ptr->record_bind_pipeline(VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                                axis_pipeline_id_);
+
+      static const VkDeviceSize offsets = 0;
+      draw_cmd_buffer_ptr->record_bind_vertex_buffers(0,  // startBinding
+                                                      1,  // bindingCount
+                                                      &inputCubeBufferPointer_,
+                                                      &offsets);
+
+      float lineWidth = 2;
+      draw_cmd_buffer_ptr->record_set_line_width(lineWidth);
+
+      draw_cmd_buffer_ptr->record_bind_descriptor_sets(
+          VK_PIPELINE_BIND_POINT_GRAPHICS, renderer_pipeline_layout_ptr,
+          0, n_axis_renderer_dses, axis_renderer_dses, 0, nullptr);
+      draw_cmd_buffer_ptr->record_draw(8, 1, 0, 0);
+    }
+    draw_cmd_buffer_ptr->record_end_render_pass();
 
     // Close the recording process.
     draw_cmd_buffer_ptr->stop_recording();
@@ -1151,6 +1278,27 @@ void App::draw_frame(void* app_raw_ptr) {
       sizeof(float),
       &viewProj.get_ww());
 
+  // Update View matrix,
+  mat5 view = app_ptr->camera_.getView();
+  app_ptr->viewMatrixUniformPointer->write(
+      app_ptr->mat5UniformSizePerSwapchain * n_swapchain_image,  // Offset.
+      sizeof(glm::mat4), &view.get_main_mat());
+  app_ptr->viewMatrixUniformPointer->write(
+      app_ptr->mat5UniformSizePerSwapchain * n_swapchain_image +
+          sizeof(glm::mat4),  // Offset.
+      sizeof(glm::vec4),
+      &view.get_column());
+  app_ptr->viewMatrixUniformPointer->write(
+      app_ptr->mat5UniformSizePerSwapchain * n_swapchain_image +
+          sizeof(glm::mat4) + sizeof(glm::vec4),  // Offset.
+      sizeof(glm::vec4),
+      &view.get_row());
+  app_ptr->viewMatrixUniformPointer->write(
+      app_ptr->mat5UniformSizePerSwapchain * n_swapchain_image +
+          sizeof(glm::mat4) + 2* sizeof(glm::vec4),  // Offset.
+      sizeof(float),
+      &view.get_ww());
+
   /* Submit jobs to relevant queues and make sure they are correctly
    * synchronized */
   device_locked_ptr->get_universal_queue(0)
@@ -1230,10 +1378,10 @@ void App::run() { //window_ptr_->run();
   while(!ShouldQuit()) {
     glfwPollEvents();
     draw_frame(this);
-    //auto cur_time = std::chrono::steady_clock::now();
-    //std::chrono::duration<double, std::milli> dif = cur_time - prev_time;
-    //std::cout << dif.count() << "\n";
-    //prev_time = cur_time;
+    auto cur_time = std::chrono::steady_clock::now();
+    std::chrono::duration<double, std::milli> dif = cur_time - prev_time;
+    std::cout << dif.count() << "\n";
+    prev_time = cur_time;
     handle_keys();
   }
   DestroyWindow();
