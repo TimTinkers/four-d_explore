@@ -239,7 +239,7 @@ void App::init_buffers() {
   // Create the layout buffer for storing the input cube vertices.
   inputCubeBufferPointer_ = Anvil::Buffer::create_nonsparse(
       device_ptr_, totalInputCubeBufferSize_,
-      Anvil::QUEUE_FAMILY_COMPUTE_BIT,
+      Anvil::QUEUE_FAMILY_COMPUTE_BIT | Anvil::QUEUE_FAMILY_GRAPHICS_BIT,
       VK_SHARING_MODE_CONCURRENT, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
   inputCubeBufferPointer_->set_name("Cube input vertices");
   memory_allocator_ptr->add_buffer(inputCubeBufferPointer_, 0);
@@ -334,7 +334,7 @@ void App::init_buffers() {
   // Create the layout buffer for storing viewProj in the compute shader.
   viewProjUniformPointer = Anvil::Buffer::create_nonsparse(
       device_ptr_, mat5_data_buffer_size_total,
-      Anvil::QUEUE_FAMILY_COMPUTE_BIT,
+      Anvil::QUEUE_FAMILY_COMPUTE_BIT | Anvil::QUEUE_FAMILY_GRAPHICS_BIT,
       VK_SHARING_MODE_CONCURRENT, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
   viewProjUniformPointer->set_name("View Proj data buffer");
   memory_allocator_ptr->add_buffer(viewProjUniformPointer,
@@ -342,7 +342,7 @@ void App::init_buffers() {
 
   viewMatrixUniformPointer = Anvil::Buffer::create_nonsparse(
       device_ptr_, mat5_data_buffer_size_total,
-      Anvil::QUEUE_FAMILY_GRAPHICS_BIT,
+	  Anvil::QUEUE_FAMILY_COMPUTE_BIT | Anvil::QUEUE_FAMILY_GRAPHICS_BIT,
       VK_SHARING_MODE_CONCURRENT, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
   viewMatrixUniformPointer->set_name("View Matrix data buffer");
   memory_allocator_ptr->add_buffer(viewMatrixUniformPointer,
@@ -1022,13 +1022,13 @@ void App::init_command_buffers() {
     draw_cmd_buffer_ptr->record_end_render_pass();
 
     printf("c5\n");
-    draw_cmd_buffer_ptr->record_begin_render_pass(
+	draw_cmd_buffer_ptr->record_begin_render_pass(
         0,
         nullptr, fbos_[n_current_swapchain_image], render_area,
         axis_renderpass_ptr_, VK_SUBPASS_CONTENTS_INLINE);
     {
       std::shared_ptr<Anvil::DescriptorSet> axis_renderer_dses[] = {
-          axis_dsg_ptr_->get_descriptor_set(0)};
+          axis_dsg_ptr_->get_descriptor_set(0) };
       const uint32_t n_axis_renderer_dses =
           sizeof(axis_renderer_dses) / sizeof(axis_renderer_dses[0]);
 
@@ -1040,20 +1040,21 @@ void App::init_command_buffers() {
 
       draw_cmd_buffer_ptr->record_bind_pipeline(VK_PIPELINE_BIND_POINT_GRAPHICS,
                                                 axis_pipeline_id_);
-
       static const VkDeviceSize offsets = 0;
       draw_cmd_buffer_ptr->record_bind_vertex_buffers(0,  // startBinding
                                                       1,  // bindingCount
                                                       &inputCubeBufferPointer_,
                                                       &offsets);
-
       float lineWidth = 2;
       draw_cmd_buffer_ptr->record_set_line_width(lineWidth);
 
       draw_cmd_buffer_ptr->record_bind_descriptor_sets(
           VK_PIPELINE_BIND_POINT_GRAPHICS, renderer_pipeline_layout_ptr,
           0, n_axis_renderer_dses, axis_renderer_dses, 0, nullptr);
+#ifdef _WIN32
+#else
       draw_cmd_buffer_ptr->record_draw(8, 1, 0, 0);
+#endif
     }
     draw_cmd_buffer_ptr->record_end_render_pass();
 
