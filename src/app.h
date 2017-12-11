@@ -64,6 +64,7 @@ class App {
   // Descriptor set group initialization with helpers.
   std::shared_ptr<Anvil::DescriptorSetGroup> dsg_ptr_;
   std::shared_ptr<Anvil::DescriptorSetGroup> compute_dsg_ptr_;
+  std::shared_ptr<Anvil::DescriptorSetGroup> axis_dsg_ptr_;
   void init_dsgs();
 
   // Image initialization.
@@ -79,6 +80,7 @@ class App {
   std::shared_ptr<Anvil::ShaderModuleStageEntryPoint> fs_ptr_;
   std::shared_ptr<Anvil::ShaderModuleStageEntryPoint> vs_ptr_;
   std::shared_ptr<Anvil::ShaderModuleStageEntryPoint> ge_ptr_;
+  std::shared_ptr<Anvil::ShaderModuleStageEntryPoint> vs_axis_ptr_;
   void init_shaders();
 
   // Compute pipeline initialization and helpers.
@@ -95,6 +97,8 @@ class App {
   Anvil::GraphicsPipelineID pipeline_id_;
   void init_gfx_pipelines();
   std::shared_ptr<Anvil::Image> depth_images_[N_SWAPCHAIN_IMAGES];
+  std::shared_ptr<Anvil::RenderPass> axis_renderpass_ptr_;
+  Anvil::GraphicsPipelineID axis_pipeline_id_;
 
   // Command buffer initialization and helpers.
   std::shared_ptr<Anvil::PrimaryCommandBuffer>
@@ -128,6 +132,7 @@ class App {
 
   VkDeviceSize mat5UniformSizePerSwapchain;
   std::shared_ptr<Anvil::Buffer> viewProjUniformPointer;
+  std::shared_ptr<Anvil::Buffer> viewMatrixUniformPointer;
 
   VkSurfaceKHR surface_;
 
