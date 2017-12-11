@@ -22,6 +22,8 @@ Milestone Three (12/04): Implement interesting visualization quirks unique to th
 Milestone Four (12/11): Structure to optimize physics performance and non-player physics objects.
 
 ## References:
+https://github.com/smcameron/open-simplex-noise-in-c
+
 https://en.wikipedia.org/wiki/4-polytope
 
 https://github.com/GPUOpen-LibrariesAndSDKs/Anvil
